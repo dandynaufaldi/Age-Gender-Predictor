@@ -38,7 +38,7 @@ def shapeToNp(shape):
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('shape_predictor_5_face_landmarks.dat')
 
-image = cv2.imread('faces/5.jpg')
+image = cv2.imread('faces/6.jpg')
 image = resizeImg(image)
 # bnw = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 bnw = image
@@ -47,10 +47,14 @@ rects = detector(image, 1)
 print('Faces =', len(rects))
 
 # faces = dlib.full_object_detections()
-
+# dets, scores, idx = detector.run(image, 1, -1)
+# for i, d in enumerate(dets):
+# 	print("Detection {}, score: {}, face_type:{}".format(d, scores[i], idx[i]))
+# print(scores)
+# print(idx)
 for (i, rect) in enumerate(rects):
 	shape = predictor(image, rect)
-	aligned = dlib.get_face_chip(image, shape, padding=0.5)
+	aligned = dlib.get_face_chip(image, shape, padding=0.4, size=256)
 	shape = shapeToNp(shape)
 	(left, top, right, bottom) = getPosFromRect(rect)
 	
@@ -63,7 +67,7 @@ for (i, rect) in enumerate(rects):
 	cv2.imshow('align {}'.format(i+1), aligned)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
-	continue
+	# continue
 	
 # cv2.imshow('output', image)
 # cv2.waitKey(0)
