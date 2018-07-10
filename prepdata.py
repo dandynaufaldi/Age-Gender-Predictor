@@ -1,5 +1,5 @@
 import loadfile, preprocess
-import os, cv2, pickle
+import os, cv2
 import numpy as np
 from tqdm import tqdm
 
@@ -10,9 +10,10 @@ if __name__ == '__main__':
 	data = data.iloc[:10]
 	data = preprocess.loadImage(data)
 	print('[PREPROC] Run face alignment...')
-	images = [preprocess.getAlignedFace(img) for img in tqdm(data['image'].tolist())]
+	# images = [preprocess.getAlignedFace(img) for img in tqdm(data['image'].tolist())]
 	paths = data['full_path'].tolist()
-	for (image, path) in tqdm(zip(images, paths), total=len(paths)):
+	for (image, path) in tqdm(zip(data['image'].tolist(), paths), total=len(paths)):
+		image = preprocess.getAlignedFace(image)
 		folder = os.path.join(RES_DIR, path[0].split('/')[0])
 		if not os.path.exists(folder):
 			os.makedirs(folder)
