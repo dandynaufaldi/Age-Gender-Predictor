@@ -7,8 +7,6 @@ def main(db_name):
 	RES_DIR = '{}_aligned'.format(db_name)
 	data = loadfile.loadData('{}'.format(db_name), '{}.mat'.format(db_name))
 	data = preprocess.cleanData(data)
-	# data = data.iloc[:10]
-	# data = preprocess.loadImage(data)
 	print('[PREPROC] Run face alignment...')
 	paths = data['full_path'].tolist()
 	for (path) in tqdm(paths):
