@@ -8,7 +8,7 @@ class AgenderNetVGG16:
 	def build():
 		vgg16 = VGG16(weights='weight/vgg16_weights_tf_dim_ordering_tf_kernels.h5')
 		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(vgg16.layers[-2].output)
-		ageLayer = Dense(101, activation='softmax', name='age_prediction')(vgg16.layers[-2].output)
+		ageLayer = Dense(10, activation='softmax', name='age_prediction')(vgg16.layers[-2].output)
 		model = Model(input=vgg16.input, output=[genderLayer, ageLayer], name='AgenderNetVGG16')
 		return model
 

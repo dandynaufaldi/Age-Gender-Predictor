@@ -1,7 +1,7 @@
 #dataset
 wiki_crop/
 imdb_crop/
-
+wiki_aligned/
 #weight
 weight/
 

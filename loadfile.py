@@ -9,8 +9,9 @@ Retrieve datetime from Matlab serial date
 '''
 def getYear(matDate):
 	temp = int(matDate)
-	return (datetime.fromordinal(temp) + timedelta(days = temp % 1) \
-			- timedelta(days = 366)).year
+	# return (datetime.fromordinal(temp) + timedelta(days = temp % 1) \
+	# 		- timedelta(days = 366)).year
+	return datetime.fromordinal(max(temp - 366, 1)).year
 
 '''
 Load raw data from .mat file
@@ -59,5 +60,6 @@ def loadData(db_name, path):
 
 if __name__ == '__main__':
 	# print(loadData('wiki', 'wiki.mat'))
-	data = loadData('wiki', 'wiki.mat')
+	data = loadmat('imdb.mat')
+	print(data['imdb'])
 	# data = cleanData(data)
