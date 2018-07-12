@@ -52,7 +52,7 @@ def loadImage(db_frame, test=False):
 Get resized image
 Return square-resized image
 '''
-def resizeImg(image, size=48):
+def resizeImg(image, size=224):
 	BLACK = [0,0,0]
 	h = image.shape[0]
 	w = image.shape[1]
@@ -80,7 +80,7 @@ def getAlignedFace(image, padding=0.4):
 	# if detect exactly 1 face, get aligned face
 	if len(rects) == 1:
 		shape = predictor(image, rects[0])
-		result = dlib.get_face_chip(image, shape, padding=padding, size=48)
+		result = dlib.get_face_chip(image, shape, padding=padding, size=224)
 	# use resized full image
 	else :
 		result = resizeImg(image)
