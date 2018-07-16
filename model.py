@@ -1,10 +1,12 @@
 from keras.applications.vgg16 import VGG16
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.xception import Xception
+from keras.applications.mobilenetv2 import MobileNetV2
 from keras.layers import Dense, Flatten, Dropout, GlobalAveragePooling2D
 from keras.models import Model
 from keras.utils.vis_utils import plot_model
-
+import cv2
+import numpy as np
 class AgenderNetVGG16(Model):
 	def __init__(self):
 		base = VGG16(
@@ -96,6 +98,38 @@ class AgenderNetXception(Model):
 	def prepImg(data):
 		data = data.astype('float32')
 		data /= 127.5
+		data -= 1.
+		return data
+
+class AgenderNetMobileNetV2(Model):
+	def __init__(self):
+		base = MobileNetV2(
+			input_shape=(96,96,3), 
+			include_top=False, 
+			weights='weight/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_96_no_top.h5')
+		topLayer = GlobalAveragePooling2D()(base.output)
+		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(topLayer)
+		ageLayer = Dense(10, activation='softmax', name='age_prediction')(topLayer)
+		super().__init__(inputs=base.input, outputs=[genderLayer, ageLayer], name='AgenderNetMobileNetV2')
+
+	
+	def prepPhase1(self):
+		for layer in self.layers[:132]:
+			layer.trainable = False
+
+	def prepPhase2(self):
+		for layer in self.layers[:115]:
+			layer.trainable = True
+	
+	def setWeight(self, path):
+		self.load_weights(path)
+
+	@staticmethod
+	def prepImg(data):
+		data = [cv2.resize(image, (96,96), interpolation = cv2.INTER_CUBIC) for image in data]
+		data = np.array(data)
+		data = data.astype('float32')
+		data /= 128.
 		data -= 1.
 		return data
 
