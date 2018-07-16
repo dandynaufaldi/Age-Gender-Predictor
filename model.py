@@ -36,6 +36,7 @@ class AgenderNetVGG16(Model):
 	@staticmethod
 	def prepImg(data):
 		data = data.astype('float16', copy=False)
+		print('Data size : ', data.size/(1024*1024))
 		data = data[..., ::-1]
 		mean = [103.939, 116.779, 123.68]
 		data[..., 0] -= mean[0]
@@ -68,6 +69,7 @@ class AgenderNetInceptionV3(Model):
 	@staticmethod
 	def prepImg(data):
 		data = data.astype('float16', copy=False)
+		print('Data size : ', data.size/(1024*1024))
 		data /= 127.5
 		data -= 1.
 		return data
@@ -97,6 +99,7 @@ class AgenderNetXception(Model):
 	@staticmethod
 	def prepImg(data):
 		data = data.astype('float16', copy=False)
+		print('Data size : ', data.size/(1024*1024))
 		data /= 127.5
 		data -= 1.
 		return data
