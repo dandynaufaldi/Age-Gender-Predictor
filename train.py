@@ -18,7 +18,7 @@ parser.add_argument('--gpu',
 					help='Num of GPU')
 parser.add_argument('--model',
 					choices=['vgg16', 'inceptionv3', 'xception'],
-					default='inceptionv3',
+					default='vgg16',
 					help='Model to be used')
 parser.add_argument('--trial',
 					action='store_true',
@@ -27,7 +27,7 @@ parser.add_argument('--trial',
 
 def loadImage(db_frame):
 	print('[PREP] Read all image...')
-	images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path[2:-2])) \
+	images = [cv2.resize(cv2.imread(os.path.join('{}_aligned'.format(db), img_path[2:-2])), (60,60)) \
 			for (db, img_path) in tqdm(zip(db_frame['db_name'].tolist(), \
 				db_frame['full_path'].tolist()), total=len(db_frame['db_name'].tolist()))]
 	db_frame['image'] = images
@@ -45,7 +45,7 @@ def prepData(trial):
 	imdb, imdb_img = loadImage(imdb)
 	data = pd.concat([wiki, imdb], axis=0)
 	del wiki, imdb
-	X = np.stack((wiki_img, imdb_img))
+	X = np.append(wiki_img, imdb_img)
 	X = np.array(X)
 	ageLabel = np.array(data['age'], dtype='uint8')
 	genderLabel = np.array(data['gender'], dtype='uint8')
@@ -157,7 +157,9 @@ def main():
 		weightname = '{}_{}_{}.hdf5'.format(MODEL, n_fold, '_'.join(str(s) for s in score))
 		model.save_weight(os.path.join('weight', weightname))
 		print(score)
+
 		n_fold += 1
+		del trainX, trainAge, trainGender, testX, testAge, testGender
 
 
 if __name__ == '__main__':
