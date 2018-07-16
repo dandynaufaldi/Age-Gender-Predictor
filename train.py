@@ -76,12 +76,12 @@ def main():
 	n_fold = 1
 	print('Data size : ', X.size/(1024*1024))
 	print('[K-FOLD] Started...')
-	kf = KFold(n_splits=5, shuffle=True, random_state=1)
+	kf = KFold(n_splits=5)
 	for train_idx, test_idx in kf.split(X):
-		print('[K-FOLD] Fold 1')
+		print('[K-FOLD] Fold {}'.format(n_fold))
 		model = None
 		trainModel = None
-		if GPU > 1:
+		if GPU == 1:
 			if MODEL == 'vgg16':
 				model = AgenderNetVGG16()
 			elif MODEL == 'inceptionv3':
