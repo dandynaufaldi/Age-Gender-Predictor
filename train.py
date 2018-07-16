@@ -1,12 +1,29 @@
 import os, pickle, cv2
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from tqdm import tqdm
 from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception
 from keras.utils import np_utils
 from sklearn.model_selection import KFold
 from keras.optimizers import SGD
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.utils.training_utils import multi_gpu_model
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--gpu',
+					default=1, 
+					type=int,
+					help='Num of GPU')
+parser.add_argument('--model',
+					choices=['vgg16', 'inceptionv3', 'xception'],
+					default='inceptionv3',
+					help='Model to be used')
+parser.add_argument('--trial',
+					action='store_true',
+					help='Run training to check code')
+
 
 def loadImage(db_frame):
 	print('[PREP] Read all image...')
@@ -16,10 +33,15 @@ def loadImage(db_frame):
 	db_frame['image'] = images
 	return db_frame
 
-def prepData():
+def prepData(trial):
 	wiki = pd.read_csv('wiki.csv')
+	if trial:
+		wiki = wiki.iloc[:64]
 	wiki = loadImage(wiki)
+	
 	imdb = pd.read_csv('imdb.csv')
+	if trial :
+		imdb = imdb.iloc[:64]
 	imdb = loadImage(imdb)
 	data = pd.concat([wiki, imdb], axis=0)
 	del wiki, imdb
@@ -30,7 +52,7 @@ def prepData():
 	genderLabel = np.array(data['gender'], dtype='uint8')
 	return X, ageLabel, genderLabel
 
-def fitModel(model, trainX, trainY, testX, testY, callbacks):
+def fitModel(model, trainX, trainY, testX, testY, callbacks, GPU):
 	return model.fit(
 			trainX,
 			trainY,
@@ -39,18 +61,41 @@ def fitModel(model, trainX, trainY, testX, testY, callbacks):
 				testY),
 			epochs=100, 
 			verbose=2, 
-			batch_size=100,
+			batch_size=32*GPU,
+			steps_per_epoch=len(trainX) // (32 * GPU),
 			callbacks=callbacks)
 
 def main():
-	X, ageLabel, genderLabel = prepData()
+	args = parser.parse_args()
+	GPU = args.gpu
+	MODEL = args.model
+	TRIAL = args.trial
+	X, ageLabel, genderLabel = prepData(TRIAL)
 	genderLabel = np_utils.to_categorical(genderLabel, 2)
 	ageLabel = np_utils.to_categorical(ageLabel, 101)
 	n_fold = 0
 	
 	kf = KFold(n_splits=10, shuffle=True, random_state=1)
 	for train_idx, test_idx in kf.split(X):
-		model = AgenderNetVGG16()
+		model = None
+		trainModel = None
+		if GPU > 1:
+			if MODEL == 'vgg16':
+				model = AgenderNetVGG16()
+			elif MODEL == 'inceptionv3':
+				model = AgenderNetInceptionV3()
+			else :
+				model = AgenderNetXception()
+			# trainModel = model
+		else :
+			with tf.device("/cpu:0"):
+				if MODEL == 'vgg16':
+					model = AgenderNetVGG16()
+				elif MODEL == 'inceptionv3':
+					model = AgenderNetInceptionV3()
+				else :
+					model = AgenderNetXception()
+			
 		trainX = model.prepImg(X[train_idx])
 		trainAge = ageLabel[train_idx]
 		trainGender = genderLabel[train_idx]
@@ -77,8 +122,11 @@ def main():
 							patience=3, 
 							verbose=0)]
 		model.prepPhase1()
-		model.compile(optimizer='adam', loss=losses, metrics=metrics)
-		hist = fitModel(model, trainX, trainY, testX, testY, callbacks)
+		trainModel = model
+		if GPU > 1 :
+			trainModel = multi_gpu_model(model, gpus=GPU)
+		trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
+		hist = fitModel(trainModel, trainX, trainY, testX, testY, callbacks, GPU)
 		with open(os.path.join('history', 'fold{}_p1.dict'.format(n_fold)), 'wb') as file_hist:
 			pickle.dump(hist.history, file_hist)
 		
@@ -87,19 +135,27 @@ def main():
 			EarlyStopping(monitor='val_loss', 
 							patience=3, 
 							verbose=0),
-			ModelCheckpoint("weight/loss{val_loss:.2f}-fold{n_fold:02d}.h5".format(n_fold=n_fold),
-                                 monitor="val_loss",
-                                 verbose=1,
-                                 save_best_only=True,
-								 save_weights_only=True)]
+			# ModelCheckpoint("weight/loss{val_loss:.2f}-fold{n_fold:02d}.h5".format(n_fold=n_fold),
+            #                      monitor="val_loss",
+            #                      verbose=1,
+            #                      save_best_only=True,
+			# 					 save_weights_only=True)
+			]
 		model.prepPhase2()
+		trainModel = model
+		if GPU > 1 :
+			trainModel = multi_gpu_model(model, gpus=GPU)
 		sgd = SGD(lr=0.0001, momentum=0.9)
-		model.compile(optimizer=sgd, loss=losses, metrics=metrics)
-		hist = fitModel(model, trainX, trainY, testX, testY, callbacks)
+		trainModel.compile(optimizer=sgd, loss=losses, metrics=metrics)
+		hist = fitModel(trainModel, trainX, trainY, testX, testY, callbacks, GPU)
 		with open(os.path.join('history', 'fold{}_p2.dict'.format(n_fold)), 'wb') as file_hist:
 			pickle.dump(hist.history, file_hist)
+		
+		
 		score = model.evaluate(testX,
 				{"age_prediction": testAge, "gender_prediction": testGender})
+		weightname = '{}_{}_{}.hdf5'.format(MODEL, n_fold, '_'.join(str(s) for s in score))
+		model.save_weight(os.path.join('weight', weightname))
 		print(score)
 		n_fold += 1
 
