@@ -73,10 +73,12 @@ def main():
 	
 	genderLabel = np_utils.to_categorical(genderLabel, 2)
 	ageLabel = np_utils.to_categorical(ageLabel, 101)
-	n_fold = 0
-	
-	kf = KFold(n_splits=10, shuffle=True, random_state=1)
+	n_fold = 1
+	print('Data size : ', X.size/(1024*1024))
+	print('[K-FOLD] Started...')
+	kf = KFold(n_splits=5, shuffle=True, random_state=1)
 	for train_idx, test_idx in kf.split(X):
+		print('[K-FOLD] Fold 1')
 		model = None
 		trainModel = None
 		if GPU > 1:
