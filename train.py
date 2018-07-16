@@ -27,26 +27,25 @@ parser.add_argument('--trial',
 
 def loadImage(db_frame):
 	print('[PREP] Read all image...')
-	images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path[0])) \
+	images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path[2:-2])) \
 			for (db, img_path) in tqdm(zip(db_frame['db_name'].tolist(), \
 				db_frame['full_path'].tolist()), total=len(db_frame['db_name'].tolist()))]
 	db_frame['image'] = images
-	return db_frame
+	images = np.array(images)
+	return db_frame, images
 
 def prepData(trial):
 	wiki = pd.read_csv('wiki.csv')
 	if trial:
 		wiki = wiki.iloc[:64]
-	wiki = loadImage(wiki)
-	
+	wiki, wiki_img = loadImage(wiki)
 	imdb = pd.read_csv('imdb.csv')
 	if trial :
 		imdb = imdb.iloc[:64]
-	imdb = loadImage(imdb)
+	imdb, imdb_img = loadImage(imdb)
 	data = pd.concat([wiki, imdb], axis=0)
 	del wiki, imdb
-
-	X = data['image']
+	X = np.stack((wiki_img, imdb_img))
 	X = np.array(X)
 	ageLabel = np.array(data['age'], dtype='uint8')
 	genderLabel = np.array(data['gender'], dtype='uint8')
@@ -71,6 +70,7 @@ def main():
 	MODEL = args.model
 	TRIAL = args.trial
 	X, ageLabel, genderLabel = prepData(TRIAL)
+	
 	genderLabel = np_utils.to_categorical(genderLabel, 2)
 	ageLabel = np_utils.to_categorical(ageLabel, 101)
 	n_fold = 0

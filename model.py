@@ -1,7 +1,7 @@
 from keras.applications.vgg16 import VGG16
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.xception import Xception
-from keras.applications.mobilenetv2 import MobileNetV2
+#from keras.applications.mobilenetv2 import MobileNetV2
 from keras.layers import Dense, Flatten, Dropout, GlobalAveragePooling2D
 from keras.models import Model
 from keras.utils.vis_utils import plot_model
@@ -134,7 +134,7 @@ class AgenderNetMobileNetV2(Model):
 		return data
 
 if __name__ == '__main__':
-	model = AgenderNetXception()
+	model = AgenderNetInceptionV3()
 	print(model.summary())
 	for (i, layer) in enumerate(model.layers):
 		print(i, layer.name, layer.trainable)
