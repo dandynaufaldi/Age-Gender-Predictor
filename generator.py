@@ -1,56 +1,70 @@
 from keras.utils import Sequence, np_utils
 import numpy as np 
+import cv2, os
+def loadImage(db, paths):
+    images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path[2:-2])) for (db, img_path) in zip(db,paths)]
+    return images
 
 class TrainGenerator(Sequence):
-    def __init__(self, model, trainX, trainAge, trainGender, batch_size):
-        self.x, self.age, self.gender = trainX, trainAge, trainGender
+    def __init__(self, model, db, paths, age, gender, batch_size):
+        self.db = db 
+        self.paths = paths
+        self.age = age
+        self.gender = gender
         self.batch_size = batch_size
-        self.model = self.model
+        self.model = model
 
     def __len__(self):
-        return int(np.ceil(len(self.x) / float(self.batch_size)))
+        return int(np.ceil(len(self.db) / float(self.batch_size)))
 
     def __getitem__(self, idx):
-        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        db = self.db[idx * self.batch_size:(idx + 1) * self.batch_size]
+        paths = self.paths[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_x = loadImage(db, paths)
         X = self.model.prepImg(batch_x)
-        del batch_x
+        del db, paths, batch_x
 
         batch_age = self.age[idx * self.batch_size:(idx + 1) * self.batch_size]
-        trainAge = np_utils.to_categorical(batch_age, 101)
+        Age = np_utils.to_categorical(batch_age, 101)
         del batch_age
 
         batch_gender = self.gender[idx * self.batch_size:(idx + 1) * self.batch_size]
-        trainGender = np_utils.to_categorical(batch_gender, 2)
+        Gender = np_utils.to_categorical(batch_gender, 2)
         del batch_gender
 
-        Y = {'age_prediction': trainAge, 
-			'gender_prediction': trainGender}
+        Y = {'age_prediction': Age, 
+			'gender_prediction': Gender}
 
         return X, Y
 
 class TestGenerator(Sequence):
-    def __init__(self, model, testX, testAge, testGender, batch_size):
-        self.x, self.age, self.gender = testX, testAge, testGender
+    def __init__(self, model, db, paths, age, gender, batch_size):
+        self.db = db 
+        self.paths = paths
+        self.age = age
+        self.gender = gender
         self.batch_size = batch_size
-        self.model = self.model
+        self.model = model
 
     def __len__(self):
-        return int(np.ceil(len(self.x) / float(self.batch_size)))
+        return int(np.ceil(len(self.db) / float(self.batch_size)))
 
     def __getitem__(self, idx):
-        batch_x = self.x[idx * self.batch_size:(idx + 1) * self.batch_size]
+        db = self.db[idx * self.batch_size:(idx + 1) * self.batch_size]
+        paths = self.paths[idx * self.batch_size:(idx + 1) * self.batch_size]
+        batch_x = loadImage(db, paths)
         X = self.model.prepImg(batch_x)
-        del batch_x
+        del db, paths, batch_x
 
         batch_age = self.age[idx * self.batch_size:(idx + 1) * self.batch_size]
-        testAge = np_utils.to_categorical(batch_age, 101)
+        Age = np_utils.to_categorical(batch_age, 101)
         del batch_age
 
         batch_gender = self.gender[idx * self.batch_size:(idx + 1) * self.batch_size]
-        testGender = np_utils.to_categorical(batch_gender, 2)
+        Gender = np_utils.to_categorical(batch_gender, 2)
         del batch_gender
 
-        Y = {'age_prediction': testAge, 
-			'gender_prediction': testGender}
+        Y = {'age_prediction': Age, 
+			'gender_prediction': Gender}
 
         return X, Y
