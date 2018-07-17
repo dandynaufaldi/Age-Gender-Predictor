@@ -25,7 +25,7 @@ parser.add_argument('--trial',
 					action='store_true',
 					help='Run training to check code')
 
-BATCH_SIZE = 32
+BATCH_SIZE = 64
 
 def loadImage(db_frame):
 	print('[PREP] Read all image...')
@@ -54,12 +54,12 @@ def fitModel(model,
 			TrainGenerator(model, trainDb, trainPaths, trainAge, trainGender, BATCH_SIZE),
 			validation_data=TestGenerator(model, testDb, testPaths, testAge, testGender, BATCH_SIZE),
 			epochs=100, 
-			verbose=1,
+			verbose=2,
 			steps_per_epoch=len(trainAge) // (BATCH_SIZE * GPU),
 			validation_steps=len(testAge) // (BATCH_SIZE * GPU),
 			workers=8,
 			use_multiprocessing=True,
-			max_queue_size=50,
+			max_queue_size=80,
 			callbacks=callbacks)
 
 def main():
@@ -108,15 +108,12 @@ def main():
 			"gender_prediction": "categorical_crossentropy",
 		}
 		metrics = {
-			"age_prediction": "acc",
+			"age_prediction": "mae",
 			"gender_prediction": "acc",
 		}
 		
 		print('[PHASE-1] Training ...')
-		callbacks = [
-			EarlyStopping(monitor='val_loss', 
-							patience=3, 
-							verbose=0)]
+		callbacks = None
 		model.prepPhase1()
 		trainModel = model
 		if GPU > 1 :
@@ -131,14 +128,9 @@ def main():
 		
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
-			EarlyStopping(monitor='val_loss', 
-							patience=3, 
-							verbose=0),
-			ModelCheckpoint("weight/model.{epoch:02d}-{val_loss:.4f}-{val_acc:.4f}-{acc:.4f}.h5",
-                                 monitor="val_loss",
+			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
                                  verbose=1,
-                                 save_best_only=True,
-								 save_weights_only=True)
+                                 save_best_only=True)
 			]
 		model.prepPhase2()
 		trainModel = model
