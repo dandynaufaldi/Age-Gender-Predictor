@@ -19,7 +19,7 @@ class AgenderNetVGG16(Model):
 		topLayer = Dense(4096, activation='relu')(topLayer)
 		topLayer = Dropout(0.5)(topLayer)
 		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(topLayer)
-		ageLayer = Dense(10, activation='softmax', name='age_prediction')(topLayer)
+		ageLayer = Dense(101, activation='softmax', name='age_prediction')(topLayer)
 		super().__init__(inputs=base.input, outputs=[genderLayer, ageLayer], name='AgenderNetVGG16')
 
 	def prepPhase1(self):
@@ -35,8 +35,8 @@ class AgenderNetVGG16(Model):
 
 	@staticmethod
 	def prepImg(data):
-		data = data.astype('float16', copy=False)
-		print('Data size : ', data.size/(1024*1024))
+		data = data.astype('float16')
+		# print('Data size : ', data.size/(1024*1024))
 		data = data[..., ::-1]
 		mean = [103.939, 116.779, 123.68]
 		data[..., 0] -= mean[0]
@@ -52,7 +52,7 @@ class AgenderNetInceptionV3(Model):
 			weights='weight/inception_v3_weights_tf_dim_ordering_tf_kernels_notop.h5')
 		topLayer = GlobalAveragePooling2D(name='avg_pool')(base.output)
 		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(topLayer)
-		ageLayer = Dense(10, activation='softmax', name='age_prediction')(topLayer)
+		ageLayer = Dense(101, activation='softmax', name='age_prediction')(topLayer)
 		super().__init__(inputs=base.input, outputs=[genderLayer, ageLayer], name='AgenderNetInceptionV3')
 	
 	def prepPhase1(self):
@@ -68,8 +68,8 @@ class AgenderNetInceptionV3(Model):
 
 	@staticmethod
 	def prepImg(data):
-		data = data.astype('float16', copy=False)
-		print('Data size : ', data.size/(1024*1024))
+		data = data.astype('float16')
+		# print('Data size : ', data.size/(1024*1024))
 		data /= 127.5
 		data -= 1.
 		return data
@@ -82,7 +82,7 @@ class AgenderNetXception(Model):
 			weights='weight/xception_weights_tf_dim_ordering_tf_kernels_notop.h5')
 		topLayer = GlobalAveragePooling2D(name='avg_pool')(base.output)
 		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(topLayer)
-		ageLayer = Dense(10, activation='softmax', name='age_prediction')(topLayer)
+		ageLayer = Dense(101, activation='softmax', name='age_prediction')(topLayer)
 		super().__init__(inputs=base.input, outputs=[genderLayer, ageLayer], name='AgenderNetXception')
 
 	def prepPhase1(self):
@@ -98,8 +98,8 @@ class AgenderNetXception(Model):
 
 	@staticmethod
 	def prepImg(data):
-		data = data.astype('float16', copy=False)
-		print('Data size : ', data.size/(1024*1024))
+		data = data.astype('float16')
+		# print('Data size : ', data.size/(1024*1024))
 		data /= 127.5
 		data -= 1.
 		return data
