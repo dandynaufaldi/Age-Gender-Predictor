@@ -24,6 +24,19 @@ parser.add_argument('--model',
 parser.add_argument('--trial',
 					action='store_true',
 					help='Run training to check code')
+parser.add_argument('--epoch',
+					default=100,
+					type=int,
+					help='Num of training epoch')
+parser.add_argument('--batch_size',
+					default=64,
+					type=int,
+					help='Size of data batch to be used')
+parser.add_argument('--num_worker',
+					default=4,
+					type=int,
+					help='Number of worker to process data')
+
 
 BATCH_SIZE = 64
 
@@ -48,18 +61,19 @@ def prepData(trial):
 
 def fitModel(model, 
 			trainDb, trainPaths, trainAge, trainGender, 
-			testDb, testPaths, testAge, testGender, 
+			testDb, testPaths, testAge, testGender,
+			epoch, batch_size, num_worker,
 			callbacks, GPU):
 	return model.fit_generator(
-			TrainGenerator(model, trainDb, trainPaths, trainAge, trainGender, BATCH_SIZE),
-			validation_data=TestGenerator(model, testDb, testPaths, testAge, testGender, BATCH_SIZE),
-			epochs=100, 
+			TrainGenerator(model, trainDb, trainPaths, trainAge, trainGender, batch_size),
+			validation_data=TestGenerator(model, testDb, testPaths, testAge, testGender, batch_size),
+			epochs=epoch, 
 			verbose=2,
-			steps_per_epoch=len(trainAge) // (BATCH_SIZE * GPU),
-			validation_steps=len(testAge) // (BATCH_SIZE * GPU),
-			workers=8,
+			steps_per_epoch=len(trainAge) // (batch_size * GPU),
+			validation_steps=len(testAge) // (batch_size * GPU),
+			workers=num_worker,
 			use_multiprocessing=True,
-			max_queue_size=80,
+			max_queue_size=int(batch_size * 1.5),
 			callbacks=callbacks)
 
 def main():
@@ -67,6 +81,9 @@ def main():
 	GPU = args.gpu
 	MODEL = args.model
 	TRIAL = args.trial
+	EPOCH = args.epoch
+	BATCH_SIZE = args.batch_size
+	NUM_WORKER = args.num_worker
 	db, paths, ageLabel, genderLabel = prepData(TRIAL)
 
 	n_fold = 1
@@ -121,7 +138,8 @@ def main():
 		trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
 		hist = fitModel(model, 
 					trainDb, trainPaths, trainAge, trainGender, 
-					testDb, testPaths, testAge, testGender, 
+					testDb, testPaths, testAge, testGender,
+					EPOCH, BATCH_SIZE, NUM_WORKER, 
 					callbacks, GPU)
 		with open(os.path.join('history', 'fold{}_p1.dict'.format(n_fold)), 'wb') as file_hist:
 			pickle.dump(hist.history, file_hist)
@@ -141,6 +159,7 @@ def main():
 		hist = fitModel(model, 
 						trainDb, trainPaths, trainAge, trainGender, 
 						testDb, testPaths, testAge, testGender, 
+						EPOCH, BATCH_SIZE, NUM_WORKER, 
 						callbacks, GPU)
 		with open(os.path.join('history', 'fold{}_p2.dict'.format(n_fold)), 'wb') as file_hist:
 			pickle.dump(hist.history, file_hist)
