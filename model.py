@@ -10,7 +10,7 @@ import numpy as np
 class AgenderNetVGG16(Model):
 	def __init__(self):
 		base = VGG16(
-			input_shape=(60,60,3), 
+			input_shape=(140,140,3), 
 			include_top=False, 
 			weights='weight/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5')
 		topLayer = Flatten()(base.output)
