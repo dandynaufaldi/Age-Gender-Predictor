@@ -92,7 +92,8 @@ def fitModel(model, trainX, trainAge, trainGender, testX, testAge, testGender, c
 			verbose=2,
 			steps_per_epoch=len(trainX) // (BATCH_SIZE * GPU),
 			validation_steps=len(testX) // (BATCH_SIZE * GPU),
-			workers=4,
+			workers=8,
+			max_queue_size=BATCH_SIZE,
 			callbacks=callbacks)
 
 def main():
