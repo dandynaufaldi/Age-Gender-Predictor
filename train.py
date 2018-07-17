@@ -44,7 +44,7 @@ def prepData(trial):
 	paths = data['full_path'].values
 	ageLabel = np.array(data['age'], dtype='uint8')
 	genderLabel = np.array(data['gender'], dtype='uint8')
-	return db_name, paths, ageLabel, genderLabel
+	return db, paths, ageLabel, genderLabel
 
 def fitModel(model, 
 			trainDb, trainPaths, trainAge, trainGender, 
