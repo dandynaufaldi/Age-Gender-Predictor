@@ -4,7 +4,7 @@ import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
 from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception
-from generator import TrainGenerator, TestGenerator
+from generator import DataGenerator
 from keras.utils import np_utils
 from sklearn.model_selection import KFold
 from keras.optimizers import SGD
@@ -65,8 +65,8 @@ def fitModel(model,
 			epoch, batch_size, num_worker,
 			callbacks, GPU):
 	return model.fit_generator(
-			TrainGenerator(model, trainDb, trainPaths, trainAge, trainGender, batch_size),
-			validation_data=TestGenerator(model, testDb, testPaths, testAge, testGender, batch_size),
+			DataGenerator(model, trainDb, trainPaths, trainAge, trainGender, batch_size),
+			validation_data=DataGenerator(model, testDb, testPaths, testAge, testGender, batch_size),
 			epochs=epoch, 
 			verbose=2,
 			steps_per_epoch=len(trainAge) // (batch_size * GPU),
