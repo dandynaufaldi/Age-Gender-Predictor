@@ -15,9 +15,9 @@ class AgenderNetVGG16(Model):
 			weights='weight/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5')
 		topLayer = Flatten()(base.output)
 		topLayer = Dense(4096, activation='relu')(topLayer)
-		topLayer = Dropout(0.5)(topLayer)
+		# topLayer = Dropout(0.5)(topLayer)
 		topLayer = Dense(4096, activation='relu')(topLayer)
-		topLayer = Dropout(0.5)(topLayer)
+		# topLayer = Dropout(0.5)(topLayer)
 		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(topLayer)
 		ageLayer = Dense(101, activation='softmax', name='age_prediction')(topLayer)
 		super().__init__(inputs=base.input, outputs=[genderLayer, ageLayer], name='AgenderNetVGG16')
@@ -60,7 +60,7 @@ class AgenderNetInceptionV3(Model):
 			layer.trainable = False
 	
 	def prepPhase2(self):
-		for layer in self.layers[280:]:
+		for layer in self.layers[165:]:
 			layer.trainable = True
 
 	def setWeight(self, path):
@@ -90,7 +90,7 @@ class AgenderNetXception(Model):
 			layer.trainable = False
 
 	def prepPhase2(self):
-		for layer in self.layers[:115]:
+		for layer in self.layers[76:]:
 			layer.trainable = True
 	
 	def setWeight(self, path):
@@ -137,7 +137,7 @@ class AgenderNetMobileNetV2(Model):
 		return data
 
 if __name__ == '__main__':
-	model = AgenderNetInceptionV3()
+	model = AgenderNetXception()
 	print(model.summary())
 	for (i, layer) in enumerate(model.layers):
 		print(i, layer.name, layer.trainable)
