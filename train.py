@@ -129,20 +129,20 @@ def main():
 			"gender_prediction": "acc",
 		}
 		
-		print('[PHASE-1] Training ...')
-		callbacks = None
-		model.prepPhase1()
-		trainModel = model
-		if GPU > 1 :
-			trainModel = multi_gpu_model(model, gpus=GPU)
-		trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
-		hist = fitModel(model, 
-					trainDb, trainPaths, trainAge, trainGender, 
-					testDb, testPaths, testAge, testGender,
-					EPOCH, BATCH_SIZE, NUM_WORKER, 
-					callbacks, GPU)
-		with open(os.path.join('history', 'fold{}_p1.dict'.format(n_fold)), 'wb') as file_hist:
-			pickle.dump(hist.history, file_hist)
+		# print('[PHASE-1] Training ...')
+		# callbacks = None
+		# model.prepPhase1()
+		# trainModel = model
+		# if GPU > 1 :
+		# 	trainModel = multi_gpu_model(model, gpus=GPU)
+		# trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
+		# hist = fitModel(model, 
+		# 			trainDb, trainPaths, trainAge, trainGender, 
+		# 			testDb, testPaths, testAge, testGender,
+		# 			EPOCH, BATCH_SIZE, NUM_WORKER, 
+		# 			callbacks, GPU)
+		# with open(os.path.join('history', 'fold{}_p1.dict'.format(n_fold)), 'wb') as file_hist:
+		# 	pickle.dump(hist.history, file_hist)
 		
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
@@ -155,7 +155,7 @@ def main():
 		if GPU > 1 :
 			trainModel = multi_gpu_model(model, gpus=GPU)
 		sgd = SGD(lr=0.0001, momentum=0.9)
-		trainModel.compile(optimizer=sgd, loss=losses, metrics=metrics)
+		trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
 		hist = fitModel(model, 
 						trainDb, trainPaths, trainAge, trainGender, 
 						testDb, testPaths, testAge, testGender, 
