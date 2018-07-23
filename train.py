@@ -81,7 +81,8 @@ def fitModel(model,
 
 def mae(y_true, y_pred):
 	# return K.mean(K.abs(K.argmax(y_pred, axis=1) - K.argmax(y_true, axis=1)), axis=-1)
-	return K.mean(K.abs(K.sum(K.arange(0,101) * y_pred, axis=1) - K.sum(K.arange(0,101) * y_true, axis=1)), axis=-1)
+	return K.mean(K.abs(K.sum(K.cast(K.arange(0,101), dtype='float32') * y_pred, axis=1) - 
+						K.sum(K.cast(K.arange(0,101), dtype='float32') * y_true, axis=1)), axis=-1)
 
 def main():
 	#dynamicalyallocate GPU memory
