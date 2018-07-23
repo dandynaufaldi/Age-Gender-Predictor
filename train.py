@@ -10,7 +10,7 @@ from sklearn.model_selection import KFold
 from keras.optimizers import SGD
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.utils.training_utils import multi_gpu_model
-import keras.backend as K
+from keras import backend as K
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -50,8 +50,8 @@ def loadImage(db_frame):
 	return db_frame, images
 
 def prepData(trial):
-	wiki = pd.read_csv('wiki.csv')
-	imdb = pd.read_csv('imdb.csv')
+	wiki = pd.read_csv('wiki_cleaned.csv')
+	imdb = pd.read_csv('imdb_cleaned.csv')
 	adience = pd.read_csv('adience_u20.csv')
 	data = pd.concat([wiki, imdb, adience], axis=0)
 	del wiki, imdb, adience

@@ -2,7 +2,8 @@ from keras.utils import Sequence, np_utils
 import numpy as np 
 import cv2, os
 def loadImage(db, paths):
-    images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path[2:-2])) for (db, img_path) in zip(db,paths)]
+    images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path)) 
+                for (db, img_path) in zip(db,paths)]
     return np.array(images, dtype='uint8')
 
 class DataGenerator(Sequence):
