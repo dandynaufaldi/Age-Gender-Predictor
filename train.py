@@ -10,6 +10,7 @@ from sklearn.model_selection import KFold
 from keras.optimizers import SGD
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.utils.training_utils import multi_gpu_model
+import keras.backend as K
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -25,7 +26,7 @@ parser.add_argument('--trial',
 					action='store_true',
 					help='Run training to check code')
 parser.add_argument('--epoch',
-					default=1000,
+					default=100,
 					type=int,
 					help='Num of training epoch')
 parser.add_argument('--batch_size',
@@ -78,6 +79,12 @@ def fitModel(model,
 			callbacks=callbacks)
 
 def main():
+	#dynamicalyallocate GPU memory
+	config = tf.ConfigProto()
+	config.gpu_options.allow_growth = True
+	sess = tf.Session(config=config)
+	K.tensorflow_backend.set_session(sess)
+
 	args = parser.parse_args()
 	GPU = args.gpu
 	MODEL = args.model
@@ -126,7 +133,7 @@ def main():
 			"gender_prediction": "categorical_crossentropy",
 		}
 		metrics = {
-			"age_prediction": "mse",
+			"age_prediction": "mae",
 			"gender_prediction": "acc",
 		}
 		
@@ -147,7 +154,7 @@ def main():
 		
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
-			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mean_squared_error:.4f}.h5",
+			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
                                  verbose=1,
                                  save_best_only=True)
 			]
