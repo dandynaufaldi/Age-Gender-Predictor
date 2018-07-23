@@ -13,6 +13,7 @@ from keras.utils.training_utils import multi_gpu_model
 from keras import backend as K
 import argparse
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu',
 					default=1, 
