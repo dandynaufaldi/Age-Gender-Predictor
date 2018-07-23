@@ -25,7 +25,7 @@ parser.add_argument('--trial',
 					action='store_true',
 					help='Run training to check code')
 parser.add_argument('--epoch',
-					default=100,
+					default=1000,
 					type=int,
 					help='Num of training epoch')
 parser.add_argument('--batch_size',
@@ -51,8 +51,9 @@ def loadImage(db_frame):
 def prepData(trial):
 	wiki = pd.read_csv('wiki.csv')
 	imdb = pd.read_csv('imdb.csv')
-	data = pd.concat([wiki, imdb], axis=0)
-	del wiki, imdb
+	adience = pd.read_csv('adience_u20.csv')
+	data = pd.concat([wiki, imdb, adience], axis=0)
+	del wiki, imdb, adience
 	db = data['db_name'].values
 	paths = data['full_path'].values
 	ageLabel = np.array(data['age'], dtype='uint8')
@@ -88,7 +89,7 @@ def main():
 
 	n_fold = 1
 	print('[K-FOLD] Started...')
-	kf = KFold(n_splits=10)
+	kf = KFold(n_splits=10, shuffle=True, random_state=1)
 	kf_split = kf.split(ageLabel)
 	for train_idx, test_idx in kf_split:
 		print('[K-FOLD] Fold {}'.format(n_fold))
@@ -125,7 +126,7 @@ def main():
 			"gender_prediction": "categorical_crossentropy",
 		}
 		metrics = {
-			"age_prediction": "mae",
+			"age_prediction": "mse",
 			"gender_prediction": "acc",
 		}
 		
@@ -146,7 +147,7 @@ def main():
 		
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
-			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
+			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mean_squared_error:.4f}.h5",
                                  verbose=1,
                                  save_best_only=True)
 			]
