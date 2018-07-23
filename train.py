@@ -80,7 +80,8 @@ def fitModel(model,
 			callbacks=callbacks)
 
 def mae(y_true, y_pred):
-	return K.mean(K.abs(K.argmax(y_pred, axis=1) - K.argmax(y_true, axis=1)), axis=-1)
+	# return K.mean(K.abs(K.argmax(y_pred, axis=1) - K.argmax(y_true, axis=1)), axis=-1)
+	return K.mean(K.abs(K.sum(K.arange(0,101) * y_pred, axis=1) - K.sum(K.arange(0,101) * y_true, axis=1)), axis=-1)
 
 def main():
 	#dynamicalyallocate GPU memory
@@ -158,7 +159,7 @@ def main():
 		
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
-			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
+			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mae:.4f}.h5",
                                  verbose=1,
                                  save_best_only=True)
 			]
