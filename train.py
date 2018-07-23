@@ -79,6 +79,9 @@ def fitModel(model,
 			max_queue_size=int(batch_size * 1.5),
 			callbacks=callbacks)
 
+def mae(y_true, y_pred):
+	return K.mean(K.abs(K.argmax(y_pred, axis=1) - K.argmax(y_true, axis=1)), axis=-1)
+
 def main():
 	#dynamicalyallocate GPU memory
 	config = tf.ConfigProto()
@@ -134,7 +137,7 @@ def main():
 			"gender_prediction": "categorical_crossentropy",
 		}
 		metrics = {
-			"age_prediction": "mae",
+			"age_prediction": mae,
 			"gender_prediction": "acc",
 		}
 		
