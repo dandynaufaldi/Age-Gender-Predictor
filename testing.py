@@ -18,7 +18,7 @@ import numpy as np
 from tqdm import tqdm
 from keras import backend as K
 from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception
-
+from generator import DataGenerator
 
 def get_data_list(path='UTKface'):
     """
@@ -112,7 +112,7 @@ def get_one_aligned_face(image,
                     'right' : rects[0].right(),
                     'bottom': rects[0].bottom()}
     else :
-        aligned = resizeImage(image, size=size)
+        aligned = resize_image(image, size=size)
         position = {'left'  : 0,
                     'top'   : 0,
                     'right' : image.shape[1],
@@ -172,10 +172,11 @@ def get_result(model, list_x):
     age_predicted        : numpy array
         Age prediction in range [0, 100]
     """
+    list_x = model.prepImg(list_x)
     predictions = model.predict(list_x)
-    gender_predicted = [np.argmax(prediction[0]) for prediction in predictions]
-    age_predicted = [np.argmax(prediction[1]) for prediction in predictions]
-    return np.array(gender_predicted), np.array(age_predicted)
+    gender_predicted = np.argmax(predictions[0], axis=1)
+    age_predicted = predictions[1].dot(np.arange(0, 101).reshape(101, 1)).flatten()
+    return gender_predicted, age_predicted
 
 def get_metrics(age_predicted, gender_predicted, age_true, gender_true):
     """
@@ -196,6 +197,41 @@ def get_metrics(age_predicted, gender_predicted, age_true, gender_true):
 
 def visualize(fullimage, result):
     pass
+def getPosFromRect(rect):
+	return (rect.left(), rect.top(), rect.right(), rect.bottom())
+def temp():
+    model = AgenderNetInceptionV3()
+    model.setWeight('trainweight/model.15-3.8402-0.9038-7.1986.h5')
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor('shape_predictor_5_face_landmarks.dat')
+    image = cv2.imread('faces/nodeflux.png')
+    rects = detector(image, 1)
+    print('Faces =', len(rects))
+
+    shapes = dlib.full_object_detections()
+    for rect in rects:
+        shapes.append(predictor(image, rect))
+    
+    faces = dlib.get_face_chips(img, faces, size=140, padding=0.4)
+    faces = np.array(faces)
+    genders, ages = get_result(model, faces)
+    genders = np.where(genders == 0, 'F', 'M')
+
+    for (i, rect) in enumerate(rects):
+        (left, top, right, bottom) = getPosFromRect(rect)
+        
+        cv2.rectangle(image, (left, top), (right, bottom), (0, 255, 0), 2)
+        cv2.putText(image, "{:.0f}, {}".format(ages[i], genders[i]), (left - 10, top - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    
+    cv2.imwrite('result.jpg', image)
 
 def main():
+    model = AgenderNetInceptionV3()
+    model.setWeight('trainweight/model.15-3.8402-0.9038-7.1986.h5')
+    
+    utk_list = get_data_list()
+
     pass
+
+if __name__ == '__main__':
+    main()
