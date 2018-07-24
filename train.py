@@ -164,7 +164,7 @@ def main():
                                  verbose=1,
                                  save_best_only=True)
 			]
-		model.prepPhase2()
+		# model.prepPhase2()
 		trainModel = model
 		if GPU > 1 :
 			trainModel = multi_gpu_model(model, gpus=GPU)

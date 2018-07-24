@@ -1,0 +1,103 @@
+1940 2015
+[PREP] Read all image...
+[PREPROC] Run face alignment...
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 2s - loss: 2.9447 - gender_prediction_loss: 0.6591 - age_prediction_loss: 2.2856 - gender_prediction_acc: 0.8889 - age_prediction_mean_absolute_error: 0.1796 - val_loss: 3.0623 - val_gender_prediction_loss: 0.7501 - val_age_prediction_loss: 2.3122 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+Epoch 2/30
+ - 0s - loss: 3.0029 - gender_prediction_loss: 0.7050 - age_prediction_loss: 2.2979 - gender_prediction_acc: 0.2222 - age_prediction_mean_absolute_error: 0.1798 - val_loss: 3.0623 - val_gender_prediction_loss: 0.7501 - val_age_prediction_loss: 2.3122 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+Epoch 3/30
+ - 0s - loss: 2.9737 - gender_prediction_loss: 0.6866 - age_prediction_loss: 2.2872 - gender_prediction_acc: 0.4444 - age_prediction_mean_absolute_error: 0.1796 - val_loss: 3.0623 - val_gender_prediction_loss: 0.7501 - val_age_prediction_loss: 2.3122 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+Epoch 4/30
+ - 0s - loss: 2.9811 - gender_prediction_loss: 0.6704 - age_prediction_loss: 2.3107 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1801 - val_loss: 3.0623 - val_gender_prediction_loss: 0.7501 - val_age_prediction_loss: 2.3122 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 3.0098 - gender_prediction_loss: 0.6895 - age_prediction_loss: 2.3204 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1803 - val_loss: 3.0145 - val_gender_prediction_loss: 0.7296 - val_age_prediction_loss: 2.2848 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1796
+Epoch 2/30
+ - 0s - loss: 2.9595 - gender_prediction_loss: 0.6635 - age_prediction_loss: 2.2960 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1798 - val_loss: 3.0145 - val_gender_prediction_loss: 0.7296 - val_age_prediction_loss: 2.2848 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1796
+Epoch 3/30
+ - 0s - loss: 2.9910 - gender_prediction_loss: 0.6903 - age_prediction_loss: 2.3007 - gender_prediction_acc: 0.2222 - age_prediction_mean_absolute_error: 0.1799 - val_loss: 3.0145 - val_gender_prediction_loss: 0.7296 - val_age_prediction_loss: 2.2848 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1796
+Epoch 4/30
+ - 0s - loss: 2.9631 - gender_prediction_loss: 0.6848 - age_prediction_loss: 2.2782 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1795 - val_loss: 3.0145 - val_gender_prediction_loss: 0.7296 - val_age_prediction_loss: 2.2848 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1796
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 3.0310 - gender_prediction_loss: 0.7133 - age_prediction_loss: 2.3177 - gender_prediction_acc: 0.3333 - age_prediction_mean_absolute_error: 0.1803 - val_loss: 2.9912 - val_gender_prediction_loss: 0.7248 - val_age_prediction_loss: 2.2664 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1793
+Epoch 2/30
+ - 0s - loss: 2.9922 - gender_prediction_loss: 0.6853 - age_prediction_loss: 2.3069 - gender_prediction_acc: 0.4444 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 2.9912 - val_gender_prediction_loss: 0.7248 - val_age_prediction_loss: 2.2664 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1793
+Epoch 3/30
+ - 0s - loss: 3.1126 - gender_prediction_loss: 0.7546 - age_prediction_loss: 2.3581 - gender_prediction_acc: 0.2222 - age_prediction_mean_absolute_error: 0.1810 - val_loss: 2.9912 - val_gender_prediction_loss: 0.7248 - val_age_prediction_loss: 2.2664 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1793
+Epoch 4/30
+ - 0s - loss: 3.0284 - gender_prediction_loss: 0.7086 - age_prediction_loss: 2.3199 - gender_prediction_acc: 0.3333 - age_prediction_mean_absolute_error: 0.1803 - val_loss: 2.9912 - val_gender_prediction_loss: 0.7248 - val_age_prediction_loss: 2.2664 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1793
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 2.9932 - gender_prediction_loss: 0.6983 - age_prediction_loss: 2.2949 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1797 - val_loss: 2.8927 - val_gender_prediction_loss: 0.6683 - val_age_prediction_loss: 2.2244 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1784
+Epoch 2/30
+ - 0s - loss: 2.9796 - gender_prediction_loss: 0.6707 - age_prediction_loss: 2.3089 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 2.8927 - val_gender_prediction_loss: 0.6683 - val_age_prediction_loss: 2.2244 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1784
+Epoch 3/30
+ - 0s - loss: 2.9580 - gender_prediction_loss: 0.6545 - age_prediction_loss: 2.3035 - gender_prediction_acc: 0.8889 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 2.8927 - val_gender_prediction_loss: 0.6683 - val_age_prediction_loss: 2.2244 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1784
+Epoch 4/30
+ - 0s - loss: 2.9532 - gender_prediction_loss: 0.6875 - age_prediction_loss: 2.2657 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1791 - val_loss: 2.8927 - val_gender_prediction_loss: 0.6683 - val_age_prediction_loss: 2.2244 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1784
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 3.0334 - gender_prediction_loss: 0.7200 - age_prediction_loss: 2.3134 - gender_prediction_acc: 0.3333 - age_prediction_mean_absolute_error: 0.1802 - val_loss: 2.9288 - val_gender_prediction_loss: 0.7528 - val_age_prediction_loss: 2.1760 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1773
+Epoch 2/30
+ - 0s - loss: 3.0473 - gender_prediction_loss: 0.7387 - age_prediction_loss: 2.3086 - gender_prediction_acc: 0.2222 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 2.9288 - val_gender_prediction_loss: 0.7528 - val_age_prediction_loss: 2.1760 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1773
+Epoch 3/30
+ - 0s - loss: 3.0202 - gender_prediction_loss: 0.7020 - age_prediction_loss: 2.3182 - gender_prediction_acc: 0.3333 - age_prediction_mean_absolute_error: 0.1801 - val_loss: 2.9288 - val_gender_prediction_loss: 0.7528 - val_age_prediction_loss: 2.1760 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1773
+Epoch 4/30
+ - 0s - loss: 3.0291 - gender_prediction_loss: 0.7488 - age_prediction_loss: 2.2803 - gender_prediction_acc: 0.2222 - age_prediction_mean_absolute_error: 0.1795 - val_loss: 2.9288 - val_gender_prediction_loss: 0.7528 - val_age_prediction_loss: 2.1760 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1773
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 2.9877 - gender_prediction_loss: 0.6564 - age_prediction_loss: 2.3313 - gender_prediction_acc: 0.7778 - age_prediction_mean_absolute_error: 0.1805 - val_loss: 3.0423 - val_gender_prediction_loss: 0.7319 - val_age_prediction_loss: 2.3104 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+Epoch 2/30
+ - 0s - loss: 2.9292 - gender_prediction_loss: 0.6380 - age_prediction_loss: 2.2911 - gender_prediction_acc: 0.7778 - age_prediction_mean_absolute_error: 0.1797 - val_loss: 3.0423 - val_gender_prediction_loss: 0.7319 - val_age_prediction_loss: 2.3104 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+Epoch 3/30
+ - 0s - loss: 2.9430 - gender_prediction_loss: 0.6647 - age_prediction_loss: 2.2784 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1795 - val_loss: 3.0423 - val_gender_prediction_loss: 0.7319 - val_age_prediction_loss: 2.3104 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+Epoch 4/30
+ - 0s - loss: 2.9654 - gender_prediction_loss: 0.6739 - age_prediction_loss: 2.2915 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1797 - val_loss: 3.0423 - val_gender_prediction_loss: 0.7319 - val_age_prediction_loss: 2.3104 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1802
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 2.9648 - gender_prediction_loss: 0.6829 - age_prediction_loss: 2.2819 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1795 - val_loss: 3.0106 - val_gender_prediction_loss: 0.6559 - val_age_prediction_loss: 2.3548 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1810
+Epoch 2/30
+ - 0s - loss: 2.9651 - gender_prediction_loss: 0.6610 - age_prediction_loss: 2.3041 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 3.0106 - val_gender_prediction_loss: 0.6559 - val_age_prediction_loss: 2.3548 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1810
+Epoch 3/30
+ - 0s - loss: 2.9754 - gender_prediction_loss: 0.6747 - age_prediction_loss: 2.3007 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1799 - val_loss: 3.0106 - val_gender_prediction_loss: 0.6559 - val_age_prediction_loss: 2.3548 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1810
+Epoch 4/30
+ - 0s - loss: 2.9645 - gender_prediction_loss: 0.6762 - age_prediction_loss: 2.2883 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1797 - val_loss: 3.0106 - val_gender_prediction_loss: 0.6559 - val_age_prediction_loss: 2.3548 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1810
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 3.0104 - gender_prediction_loss: 0.6966 - age_prediction_loss: 2.3137 - gender_prediction_acc: 0.3333 - age_prediction_mean_absolute_error: 0.1801 - val_loss: 2.9252 - val_gender_prediction_loss: 0.6913 - val_age_prediction_loss: 2.2339 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1786
+Epoch 2/30
+ - 0s - loss: 3.0456 - gender_prediction_loss: 0.6916 - age_prediction_loss: 2.3540 - gender_prediction_acc: 0.2222 - age_prediction_mean_absolute_error: 0.1809 - val_loss: 2.9252 - val_gender_prediction_loss: 0.6913 - val_age_prediction_loss: 2.2339 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1786
+Epoch 3/30
+ - 0s - loss: 3.0456 - gender_prediction_loss: 0.7197 - age_prediction_loss: 2.3258 - gender_prediction_acc: 0.4444 - age_prediction_mean_absolute_error: 0.1804 - val_loss: 2.9252 - val_gender_prediction_loss: 0.6913 - val_age_prediction_loss: 2.2339 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1786
+Epoch 4/30
+ - 0s - loss: 3.0268 - gender_prediction_loss: 0.6962 - age_prediction_loss: 2.3306 - gender_prediction_acc: 0.7778 - age_prediction_mean_absolute_error: 0.1805 - val_loss: 2.9252 - val_gender_prediction_loss: 0.6913 - val_age_prediction_loss: 2.2339 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1786
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 3.0128 - gender_prediction_loss: 0.6707 - age_prediction_loss: 2.3421 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1807 - val_loss: 2.9872 - val_gender_prediction_loss: 0.7394 - val_age_prediction_loss: 2.2478 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1789
+Epoch 2/30
+ - 0s - loss: 3.0201 - gender_prediction_loss: 0.7171 - age_prediction_loss: 2.3030 - gender_prediction_acc: 0.4444 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 2.9872 - val_gender_prediction_loss: 0.7394 - val_age_prediction_loss: 2.2478 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1789
+Epoch 3/30
+ - 0s - loss: 2.9976 - gender_prediction_loss: 0.6952 - age_prediction_loss: 2.3024 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1800 - val_loss: 2.9872 - val_gender_prediction_loss: 0.7394 - val_age_prediction_loss: 2.2478 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1789
+Epoch 4/30
+ - 0s - loss: 2.9451 - gender_prediction_loss: 0.6621 - age_prediction_loss: 2.2829 - gender_prediction_acc: 0.6667 - age_prediction_mean_absolute_error: 0.1795 - val_loss: 2.9872 - val_gender_prediction_loss: 0.7394 - val_age_prediction_loss: 2.2478 - val_gender_prediction_acc: 0.0000e+00 - val_age_prediction_mean_absolute_error: 0.1789
+[PHASE-1] Training ...
+Train on 9 samples, validate on 1 samples
+Epoch 1/30
+ - 0s - loss: 3.0633 - gender_prediction_loss: 0.7135 - age_prediction_loss: 2.3497 - gender_prediction_acc: 0.1111 - age_prediction_mean_absolute_error: 0.1808 - val_loss: 3.0067 - val_gender_prediction_loss: 0.6876 - val_age_prediction_loss: 2.3192 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1803
+Epoch 2/30
+ - 0s - loss: 3.0676 - gender_prediction_loss: 0.7109 - age_prediction_loss: 2.3567 - gender_prediction_acc: 0.3333 - age_prediction_mean_absolute_error: 0.1810 - val_loss: 3.0067 - val_gender_prediction_loss: 0.6876 - val_age_prediction_loss: 2.3192 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1803
+Epoch 3/30
+ - 0s - loss: 2.9801 - gender_prediction_loss: 0.6928 - age_prediction_loss: 2.2873 - gender_prediction_acc: 0.5556 - age_prediction_mean_absolute_error: 0.1796 - val_loss: 3.0067 - val_gender_prediction_loss: 0.6876 - val_age_prediction_loss: 2.3192 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1803
+Epoch 4/30
+ - 0s - loss: 3.0039 - gender_prediction_loss: 0.6916 - age_prediction_loss: 2.3123 - gender_prediction_acc: 0.4444 - age_prediction_mean_absolute_error: 0.1801 - val_loss: 3.0067 - val_gender_prediction_loss: 0.6876 - val_age_prediction_loss: 2.3192 - val_gender_prediction_acc: 1.0000 - val_age_prediction_mean_absolute_error: 0.1803
