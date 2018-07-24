@@ -4,13 +4,15 @@ import pandas as pd
 import tensorflow as tf
 from tqdm import tqdm
 from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception
-from generator import TrainGenerator, TestGenerator
+from generator import DataGenerator
 from keras.utils import np_utils
 from sklearn.model_selection import KFold
 from keras.optimizers import SGD
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.utils.training_utils import multi_gpu_model
+from keras import backend as K
 import argparse
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu',
@@ -19,97 +21,89 @@ parser.add_argument('--gpu',
 					help='Num of GPU')
 parser.add_argument('--model',
 					choices=['vgg16', 'inceptionv3', 'xception'],
-					default='vgg16',
+					default='inceptionv3',
 					help='Model to be used')
 parser.add_argument('--trial',
 					action='store_true',
 					help='Run training to check code')
+parser.add_argument('--epoch',
+					default=100,
+					type=int,
+					help='Num of training epoch')
+parser.add_argument('--batch_size',
+					default=64,
+					type=int,
+					help='Size of data batch to be used')
+parser.add_argument('--num_worker',
+					default=4,
+					type=int,
+					help='Number of worker to process data')
 
-BATCH_SIZE = 32
 
-def trainGenerator(model, trainX, trainAge, trainGender):
-	L = trainX.shape[0]
-	while True:
-		batch_start = 0
-		batch_end = BATCH_SIZE
-		while batch_start < L:
-			limit = min(batch_end, L)
-			X = model.prepImg(trainX[batch_start:limit])
-			Y = {"age_prediction": trainAge[batch_start:limit], 
-					"gender_prediction": trainGender[batch_start:limit]}
-
-			yield (X,Y) #a tuple with two numpy arrays with batch_size samples     
-
-			batch_start += BATCH_SIZE   
-			batch_end += BATCH_SIZE
-
-def testGenerator(model, testX, testAge, testGender):
-	L = testX.shape[0]
-	while True:
-		batch_start = 0
-		batch_end = BATCH_SIZE
-		while batch_start < L:
-			limit = min(batch_end, L)
-			X = model.prepImg(testX[batch_start:limit])
-			Y = {"age_prediction": testAge[batch_start:limit], 
-					"gender_prediction": testGender[batch_start:limit]}
-
-			yield (X,Y) #a tuple with two numpy arrays with batch_size samples     
-
-			batch_start += BATCH_SIZE   
-			batch_end += BATCH_SIZE
+BATCH_SIZE = 64
 
 def loadImage(db_frame):
 	print('[PREP] Read all image...')
 	images = [cv2.resize(cv2.imread(os.path.join('{}_aligned'.format(db), img_path[2:-2])), (60,60)) \
 			for (db, img_path) in tqdm(zip(db_frame['db_name'].tolist(), \
 				db_frame['full_path'].tolist()), total=len(db_frame['db_name'].tolist()))]
-	db_frame['image'] = images
 	images = np.array(images)
 	return db_frame, images
 
 def prepData(trial):
-	wiki = pd.read_csv('wiki.csv')
-	if trial:
-		wiki = wiki.iloc[:64]
-	wiki, wiki_img = loadImage(wiki)
-	imdb = pd.read_csv('imdb.csv')
-	if trial :
-		imdb = imdb.iloc[:64]
-	imdb, imdb_img = loadImage(imdb)
-	data = pd.concat([wiki, imdb], axis=0)
-	del wiki, imdb
-	X = np.append(wiki_img, imdb_img)
+	wiki = pd.read_csv('wiki_cleaned.csv')
+	imdb = pd.read_csv('imdb_cleaned.csv')
+	adience = pd.read_csv('adience_u20.csv')
+	data = pd.concat([wiki, imdb, adience], axis=0)
+	del wiki, imdb, adience
+	db = data['db_name'].values
+	paths = data['full_path'].values
 	ageLabel = np.array(data['age'], dtype='uint8')
 	genderLabel = np.array(data['gender'], dtype='uint8')
-	return X, ageLabel, genderLabel
+	return db, paths, ageLabel, genderLabel
 
-def fitModel(model, trainX, trainAge, trainGender, testX, testAge, testGender, callbacks, GPU):
+def fitModel(model, 
+			trainDb, trainPaths, trainAge, trainGender, 
+			testDb, testPaths, testAge, testGender,
+			epoch, batch_size, num_worker,
+			callbacks, GPU):
 	return model.fit_generator(
-			TrainGenerator(model, trainX, trainAge, trainGender, BATCH_SIZE),
-			validation_data=TestGenerator(model, testX, testAge, testGender, BATCH_SIZE),
-			epochs=100, 
+			DataGenerator(model, trainDb, trainPaths, trainAge, trainGender, batch_size),
+			validation_data=DataGenerator(model, testDb, testPaths, testAge, testGender, batch_size),
+			epochs=epoch, 
 			verbose=2,
-			steps_per_epoch=len(trainX) // (BATCH_SIZE * GPU),
-			validation_steps=len(testX) // (BATCH_SIZE * GPU),
-			workers=8,
-			max_queue_size=BATCH_SIZE,
+			steps_per_epoch=len(trainAge) // (batch_size * GPU),
+			validation_steps=len(testAge) // (batch_size * GPU),
+			workers=num_worker,
+			use_multiprocessing=True,
+			max_queue_size=int(batch_size * 1.5),
 			callbacks=callbacks)
 
+def mae(y_true, y_pred):
+	# return K.mean(K.abs(K.argmax(y_pred, axis=1) - K.argmax(y_true, axis=1)), axis=-1)
+	return K.mean(K.abs(K.sum(K.cast(K.arange(0,101), dtype='float32') * y_pred, axis=1) - 
+						K.sum(K.cast(K.arange(0,101), dtype='float32') * y_true, axis=1)), axis=-1)
+
 def main():
+	#dynamicalyallocate GPU memory
+	config = tf.ConfigProto()
+	config.gpu_options.allow_growth = True
+	sess = tf.Session(config=config)
+	K.tensorflow_backend.set_session(sess)
+
 	args = parser.parse_args()
 	GPU = args.gpu
 	MODEL = args.model
 	TRIAL = args.trial
-	X, ageLabel, genderLabel = prepData(TRIAL)
-	
-	# genderLabel = np_utils.to_categorical(genderLabel, 2)
-	# ageLabel = np_utils.to_categorical(ageLabel, 101)
+	EPOCH = args.epoch
+	BATCH_SIZE = args.batch_size
+	NUM_WORKER = args.num_worker
+	db, paths, ageLabel, genderLabel = prepData(TRIAL)
+
 	n_fold = 1
-	print('Data size : ', X.size/(1024*1024))
 	print('[K-FOLD] Started...')
-	kf = KFold(n_splits=5)
-	kf_split = kf.split(X)
+	kf = KFold(n_splits=10, shuffle=True, random_state=1)
+	kf_split = kf.split(ageLabel)
 	for train_idx, test_idx in kf_split:
 		print('[K-FOLD] Fold {}'.format(n_fold))
 		model = None
@@ -130,11 +124,13 @@ def main():
 					model = AgenderNetInceptionV3()
 				else :
 					model = AgenderNetXception()
-		print('[PREP] Prepare data for training')
-		trainX = X[train_idx]
+		trainDb = db[train_idx]
+		trainPaths = paths[train_idx]
 		trainAge = ageLabel[train_idx]
 		trainGender = genderLabel[train_idx]
-		testX = X[test_idx]
+		
+		testDb = db[test_idx]
+		testPaths = paths[test_idx]
 		testAge = ageLabel[test_idx]
 		testGender = genderLabel[test_idx]
 
@@ -143,58 +139,49 @@ def main():
 			"gender_prediction": "categorical_crossentropy",
 		}
 		metrics = {
-			"age_prediction": "mae",
+			"age_prediction": mae,
 			"gender_prediction": "acc",
 		}
-		# trainY = {"age_prediction": trainAge, 
-		# 			"gender_prediction": trainGender}
-		# testY = {"age_prediction": testAge, 
-		# 		"gender_prediction": testGender}
-
-		print('[PHASE-1] Training ...')
-		callbacks = [
-			EarlyStopping(monitor='val_loss', 
-							patience=3, 
-							verbose=0)]
-		model.prepPhase1()
-		trainModel = model
-		if GPU > 1 :
-			trainModel = multi_gpu_model(model, gpus=GPU)
-		trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
-		hist = fitModel(trainModel, trainX, trainAge, trainGender, testX, testAge, testGender, callbacks, GPU)
-		with open(os.path.join('history', 'fold{}_p1.dict'.format(n_fold)), 'wb') as file_hist:
-			pickle.dump(hist.history, file_hist)
+		
+		# print('[PHASE-1] Training ...')
+		# callbacks = None
+		# model.prepPhase1()
+		# trainModel = model
+		# if GPU > 1 :
+		# 	trainModel = multi_gpu_model(model, gpus=GPU)
+		# trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
+		# hist = fitModel(model, 
+		# 			trainDb, trainPaths, trainAge, trainGender, 
+		# 			testDb, testPaths, testAge, testGender,
+		# 			EPOCH, BATCH_SIZE, NUM_WORKER, 
+		# 			callbacks, GPU)
+		# with open(os.path.join('history', 'fold{}_p1.dict'.format(n_fold)), 'wb') as file_hist:
+		# 	pickle.dump(hist.history, file_hist)
 		
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
-			EarlyStopping(monitor='val_loss', 
-							patience=3, 
-							verbose=0),
-			# ModelCheckpoint("weight/loss{val_loss:.2f}-fold{n_fold:02d}.h5".format(n_fold=n_fold),
-            #                      monitor="val_loss",
-            #                      verbose=1,
-            #                      save_best_only=True,
-			# 					 save_weights_only=True)
+			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mae:.4f}.h5",
+                                 verbose=1,
+                                 save_best_only=True)
 			]
-		model.prepPhase2()
+		# model.prepPhase2()
 		trainModel = model
 		if GPU > 1 :
 			trainModel = multi_gpu_model(model, gpus=GPU)
 		sgd = SGD(lr=0.0001, momentum=0.9)
-		trainModel.compile(optimizer=sgd, loss=losses, metrics=metrics)
-		hist = fitModel(trainModel, trainX, trainAge, trainGender, testX, testAge, testGender, callbacks, GPU)
+		trainModel.compile(optimizer='adam', loss=losses, metrics=metrics)
+		hist = fitModel(model, 
+						trainDb, trainPaths, trainAge, trainGender, 
+						testDb, testPaths, testAge, testGender, 
+						EPOCH, BATCH_SIZE, NUM_WORKER, 
+						callbacks, GPU)
 		with open(os.path.join('history', 'fold{}_p2.dict'.format(n_fold)), 'wb') as file_hist:
 			pickle.dump(hist.history, file_hist)
-		
-		
-		score = model.evaluate(testX,
-				{"age_prediction": testAge, "gender_prediction": testGender})
-		weightname = '{}_{}_{}.hdf5'.format(MODEL, n_fold, '_'.join(str(s) for s in score))
-		model.save_weight(os.path.join('weight', weightname))
-		print(score)
 
 		n_fold += 1
-		del trainX, trainAge, trainGender, testX, testAge, testGender, model, trainModel
+		del trainDb, trainPaths, trainAge, trainGender 
+		del	testDb, testPaths, testAge, testGender
+		del	callbacks, model, trainModel
 
 
 if __name__ == '__main__':
