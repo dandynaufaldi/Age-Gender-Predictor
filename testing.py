@@ -234,4 +234,8 @@ def main():
     pass
 
 if __name__ == '__main__':
-    main()
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tf.Session(config=config)
+    K.tensorflow_backend.set_session(sess)
+    temp()
