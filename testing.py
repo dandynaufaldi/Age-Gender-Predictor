@@ -12,7 +12,7 @@
     - use bounding box
     - put text (age, gender)
 '''
-import argparse, os, glob, cv2, dlib
+import argparse, os, glob, cv2, dlib, time
 import pandas as pd 
 import numpy as np
 from tqdm import tqdm
@@ -200,7 +200,9 @@ def visualize(fullimage, result):
 def getPosFromRect(rect):
 	return (rect.left(), rect.top(), rect.right(), rect.bottom())
 def temp():
+    print('[LOAD MODEL]')
     model = AgenderNetInceptionV3()
+    print('[LOAD WEIGHT]')
     model.setWeight('trainweight/model.15-3.8402-0.9038-7.1986.h5')
     detector = dlib.get_frontal_face_detector()
     predictor = dlib.shape_predictor('shape_predictor_5_face_landmarks.dat')
@@ -208,15 +210,20 @@ def temp():
     rects = detector(image, 1)
     print('Faces =', len(rects))
 
+    print('[DETECT FACE]')
     shapes = dlib.full_object_detections()
     for rect in rects:
         shapes.append(predictor(image, rect))
     
-    faces = dlib.get_face_chips(img, faces, size=140, padding=0.4)
+    print('[ALIGN]')
+    faces = dlib.get_face_chips(image, shapes, size=140, padding=0.4)
     faces = np.array(faces)
+    
+    print('[PREDICT]')
     genders, ages = get_result(model, faces)
     genders = np.where(genders == 0, 'F', 'M')
 
+    print('[VIZ]')
     for (i, rect) in enumerate(rects):
         (left, top, right, bottom) = getPosFromRect(rect)
         
@@ -238,4 +245,7 @@ if __name__ == '__main__':
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     K.tensorflow_backend.set_session(sess)
+    start = time.time()
     temp()
+    stop = time.time()
+    print('Time taken (sec) :', stop-start)
