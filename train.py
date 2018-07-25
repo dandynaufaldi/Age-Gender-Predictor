@@ -40,9 +40,9 @@ parser.add_argument('--num_worker',
 					help='Number of worker to process data')
 
 def prepData(trial):
-	wiki = pd.read_csv('wiki_cleaned.csv')
-	imdb = pd.read_csv('imdb_cleaned.csv')
-	adience = pd.read_csv('adience_u20.csv')
+	wiki = pd.read_csv('dataset/wiki_cleaned.csv')
+	imdb = pd.read_csv('dataset/imdb_cleaned.csv')
+	adience = pd.read_csv('dataset/adience_u20.csv')
 	data = pd.concat([wiki, imdb, adience], axis=0)
 	del wiki, imdb, adience
 	db = data['db_name'].values
@@ -139,6 +139,7 @@ def main():
 		}
 		
 		if MODEL == 'ssrnet' :
+			del losses, metrics
 			losses = {
 				"age_prediction": "mae",
 				"gender_prediction": "mae",
@@ -166,10 +167,12 @@ def main():
 		callbacks = [
 			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mae:.4f}.h5",
                                  verbose=1,
-                                 save_best_only=True)
+                                 save_best_only=True),
+				TYY_callbacks.DecayLearningRate([15])
 			]
 		
 		if MODEL == 'ssrnet':
+			del callbacks
 			callbacks = [
 				ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_binary_accuracy:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
 									verbose=1,
