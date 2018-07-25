@@ -1,7 +1,4 @@
 import keras
-from sklearn.metrics import roc_auc_score
-import sys
-import matplotlib.pyplot as plt
 from keras.models import Model
 import numpy as np
 from keras import backend as K
