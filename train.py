@@ -145,7 +145,7 @@ def main():
 			}
 			metrics = {
 				"age_prediction": "mae",
-				"gender_prediction": metrics.metrics.binary_accuracy,
+				"gender_prediction":"binary_accuracy",
 			}
 		# print('[PHASE-1] Training ...')
 		# callbacks = None
@@ -170,8 +170,12 @@ def main():
 			]
 		
 		if MODEL == 'ssrnet':
-			callbacks.append(TYY_callbacks.DecayLearningRate([30, 60]))
-
+			callbacks = [
+				ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_binary_accuracy:.4f}-{val_age_prediction_mae:.4f}.h5",
+									verbose=1,
+									save_best_only=True),
+				TYY_callbacks.DecayLearningRate([30, 60])
+				]
 		model.prepPhase2()
 		trainModel = model
 		if GPU > 1 :

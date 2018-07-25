@@ -4,6 +4,7 @@ import cv2, os
 def loadImage(db, paths, size):
     images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path)) 
                 for (db, img_path) in zip(db,paths)]
+    images = np.array(images)
     if images.shape[1] != size:
         images = [cv2.resize(image, (size,size), interpolation = cv2.INTER_CUBIC) for image in images]
     return np.array(images, dtype='uint8')
