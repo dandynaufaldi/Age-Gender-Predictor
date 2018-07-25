@@ -16,7 +16,7 @@ class DataGenerator(Sequence):
         self.model = model
 
     def __len__(self):
-        return int(np.ceil(len(self.db) / float(self.batch_size)))
+        return int(np.ceil(len(self.label) / float(self.batch_size)))
 
     def __getitem__(self, idx):
         X = self.images[idx * self.batch_size:(idx + 1) * self.batch_size]
@@ -54,20 +54,35 @@ def main():
     print('[LOAD DATA]')
     images, ageLabel, genderLabel = prepData(64)
     n_fold = 1
-    weight_file = "ssrnet_3_3_3_64_1.0_1.0.h5"
-    weight_file_gender = "gender_ssrnet_3_3_3_64_1.0_1.0.h5"
     
     img_size = 64
     stage_num = [3,3,3]
     lambda_local = 1
     lambda_d = 1
-    model = SSR_net(img_size,stage_num, lambda_local, lambda_d)()
-    model.compile(optimizer='adam', loss="mae", metrics=["mae"])
-    model.load_weights(weight_file)
+    imdb_model = SSR_net(img_size,stage_num, lambda_local, lambda_d)()
+    imdb_model.compile(optimizer='adam', loss="mae", metrics=["mae"])
+    imdb_model.load_weights("imdb_age_ssrnet_3_3_3_64_1.0_1.0.h5")
     
-    model_gender = SSR_net_general(img_size,stage_num, lambda_local, lambda_d)()
-    model_gender.compile(optimizer='adam', loss="mae", metrics=["binary_accuracy"])
-    model_gender.load_weights(weight_file_gender)
+    imdb_model_gender = SSR_net_general(img_size,stage_num, lambda_local, lambda_d)()
+    imdb_model_gender.compile(optimizer='adam', loss="mae", metrics=["binary_accuracy"])
+    imdb_model_gender.load_weights("imdb_gender_ssrnet_3_3_3_64_1.0_1.0.h5")
+
+    wiki_model = SSR_net(img_size,stage_num, lambda_local, lambda_d)()
+    wiki_model.compile(optimizer='adam', loss="mae", metrics=["mae"])
+    wiki_model.load_weights("wiki_age_ssrnet_3_3_3_64_1.0_1.0.h5")
+    
+    wiki_model_gender = SSR_net_general(img_size,stage_num, lambda_local, lambda_d)()
+    wiki_model_gender.compile(optimizer='adam', loss="mae", metrics=["binary_accuracy"])
+    wiki_model_gender.load_weights("wiki_gender_ssrnet_3_3_3_64_1.0_1.0.h5")
+
+    morph_model = SSR_net(img_size,stage_num, lambda_local, lambda_d)()
+    morph_model.compile(optimizer='adam', loss="mae", metrics=["mae"])
+    morph_model.load_weights("morph_age_ssrnet_3_3_3_64_1.0_1.0.h5")
+    
+    morph_model_gender = SSR_net_general(img_size,stage_num, lambda_local, lambda_d)()
+    morph_model_gender.compile(optimizer='adam', loss="mae", metrics=["binary_accuracy"])
+    morph_model_gender.load_weights("morph_gender_ssrnet_3_3_3_64_1.0_1.0.h5")
+
    
     print('[K-FOLD] Started...')
     kf = KFold(n_splits=10, shuffle=True, random_state=1)
@@ -78,11 +93,19 @@ def main():
         testAge = ageLabel[test_idx]
         testGender = genderLabel[test_idx]
 
-        scores = evaluate(model, testImages, testAge)
-        print('Age score:', scores)
+        scores = evaluate(imdb_model, testImages, testAge)
+        print('imdb Age score:', scores)
+        scores = evaluate(wiki_model, testImages, testAge)
+        print('wiki Age score:', scores)
+        scores = evaluate(morph_model, testImages, testAge)
+        print('morph Age score:', scores)
 
-        scores = evaluate(model_gender, testImages, testGender)
-        print('Gender score:', scores)
+        scores = evaluate(imdb_model_gender, testImages, testGender)
+        print('imdb Gender score:', scores)
+        scores = evaluate(wiki_model_gender, testImages, testGender)
+        print('wiki Gender score:', scores)
+        scores = evaluate(morph_model_gender, testImages, testGender)
+        print('morph Gender score:', scores)
 
         n_fold += 1
         del	testImages, testAge, testGender, scores
