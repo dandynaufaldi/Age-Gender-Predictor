@@ -126,7 +126,7 @@ class AgenderNetMobileNetV2(Model):
 			weights='weight/mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_96_no_top.h5')
 		topLayer = GlobalAveragePooling2D()(base.output)
 		genderLayer = Dense(2, activation='softmax', name='gender_prediction')(topLayer)
-		ageLayer = Dense(10, activation='softmax', name='age_prediction')(topLayer)
+		ageLayer = Dense(101, activation='softmax', name='age_prediction')(topLayer)
 		super().__init__(inputs=base.input, outputs=[genderLayer, ageLayer], name='AgenderNetMobileNetV2')
 
 	
