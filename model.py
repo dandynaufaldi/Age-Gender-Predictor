@@ -34,6 +34,11 @@ class AgenderNetVGG16(Model):
 	
 	def setWeight(self, path):
 		self.load_weights(path)
+    
+    def decodePrediction(self, prediction):
+        gender_predicted = np.argmax(predictions[0], axis=1)
+        age_predicted = predictions[1].dot(np.arange(0, 101).reshape(101, 1)).flatten()
+        return gender_predicted, age_predicted
 
 	@staticmethod
 	def prepImg(data):
@@ -67,6 +72,11 @@ class AgenderNetInceptionV3(Model):
 	def setWeight(self, path):
 		self.load_weights(path)
 
+    def decodePrediction(self, prediction):
+        gender_predicted = np.argmax(predictions[0], axis=1)
+        age_predicted = predictions[1].dot(np.arange(0, 101).reshape(101, 1)).flatten()
+        return gender_predicted, age_predicted
+
 	@staticmethod
 	def prepImg(data):
 		data = data.astype('float16')
@@ -95,6 +105,11 @@ class AgenderNetXception(Model):
 	
 	def setWeight(self, path):
 		self.load_weights(path)
+
+    def decodePrediction(self, prediction):
+        gender_predicted = np.argmax(predictions[0], axis=1)
+        age_predicted = predictions[1].dot(np.arange(0, 101).reshape(101, 1)).flatten()
+        return gender_predicted, age_predicted
 
 	@staticmethod
 	def prepImg(data):
@@ -125,6 +140,11 @@ class AgenderNetMobileNetV2(Model):
 	
 	def setWeight(self, path):
 		self.load_weights(path)
+    
+    def decodePrediction(self, prediction):
+        gender_predicted = np.argmax(predictions[0], axis=1)
+        age_predicted = predictions[1].dot(np.arange(0, 101).reshape(101, 1)).flatten()
+        return gender_predicted, age_predicted
 
 	@staticmethod
 	def prepImg(data):
@@ -303,6 +323,11 @@ class SSRNet(Model):
     def setWeight(self, path):
         self.load_weights(path)
 
+    def decodePrediction(self, prediction):
+        gender_predicted = np.around(predictions[0]).astype('int')
+        age_predicted = predictions[1]
+        return gender_predicted, age_predicted
+        
     @staticmethod
     def prepImg(data):
         data = data.astype('float16')

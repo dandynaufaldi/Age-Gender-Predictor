@@ -5,11 +5,11 @@ wiki_aligned/
 imdb_aligned/
 adience_aligned/
 adience/
+UTKface/
 #weight
 history/
-
 # Byte-compiled / optimized / DLL files
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
