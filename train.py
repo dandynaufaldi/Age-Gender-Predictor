@@ -2,7 +2,7 @@ import os, pickle, cv2
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception, SSRNet
+from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception, SSRNet, AgenderNetMobileNetV2
 from generator import DataGenerator
 from keras.utils import np_utils
 from sklearn.model_selection import KFold
@@ -20,7 +20,7 @@ parser.add_argument('--gpu',
 					type=int,
 					help='Num of GPU')
 parser.add_argument('--model',
-					choices=['vgg16', 'inceptionv3', 'xception', 'ssrnet'],
+					choices=['vgg16', 'inceptionv3', 'xception', 'ssrnet', 'mobilenetv2'],
 					default='inceptionv3',
 					help='Model to be used')
 parser.add_argument('--trial',
@@ -106,6 +106,8 @@ def main():
 				model = AgenderNetVGG16()
 			elif MODEL == 'inceptionv3':
 				model = AgenderNetInceptionV3()
+			elif MODEL == 'mobilenetv2':
+				model = AgenderNetMobileNetV2()
 			else :
 				model = AgenderNetXception()
 			# trainModel = model
@@ -117,6 +119,8 @@ def main():
 					model = AgenderNetVGG16()
 				elif MODEL == 'inceptionv3':
 					model = AgenderNetInceptionV3()
+				elif MODEL == 'mobilenetv2':
+					model = AgenderNetMobileNetV2()
 				else :
 					model = AgenderNetXception()
 		trainDb = db[train_idx]
@@ -168,7 +172,7 @@ def main():
 			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mae:.4f}.h5",
                                  verbose=1,
                                  save_best_only=True),
-				TYY_callbacks.DecayLearningRate([15])
+				'''TYY_callbacks.DecayLearningRate([15]''')
 			]
 		
 		if MODEL == 'ssrnet':

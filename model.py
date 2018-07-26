@@ -135,7 +135,7 @@ class AgenderNetMobileNetV2(Model):
 			layer.trainable = False
 
 	def prepPhase2(self):
-		for layer in self.layers[:115]:
+		for layer in self.layers[78:]:
 			layer.trainable = True
 	
 	def setWeight(self, path):
@@ -150,7 +150,7 @@ class AgenderNetMobileNetV2(Model):
 	def prepImg(data):
 		data = [cv2.resize(image, (96,96), interpolation = cv2.INTER_CUBIC) for image in data]
 		data = np.array(data)
-		data = data.astype('float16', copy=False)
+		data = data.astype('float16')
 		data /= 128.
 		data -= 1.
 		return data
@@ -338,10 +338,10 @@ if __name__ == '__main__':
 	lambda_local = 1.0
 	lambda_d = 1.0
 	# model = SSRNet(64, stage_num, lambda_local, lambda_d)
-	model = AgenderNetInceptionV3()
+	model = AgenderNetMobileNetV2()
 	print(model.summary())
-	# for (i, layer) in enumerate(model.layers):
-	#     print(i, layer.name, layer.trainable)
+	for (i, layer) in enumerate(model.layers):
+	    print(i, layer.name, layer.trainable)
 	# model.prepPhase1()
 	# for (i, layer) in enumerate(model.layers):
 	# 	print(i, layer.name, layer.trainable)
@@ -349,4 +349,4 @@ if __name__ == '__main__':
 	# for (i, layer) in enumerate(model.layers):
 	# 	print(i, layer.name, layer.trainable)
 
-	# plot_model(model, to_file='SSR_Net.png')
+	plot_model(model, to_file='MobileNetV2.png')

@@ -71,7 +71,7 @@ Get aligned face if possible, else return whole resized image
 Input : single image (numpy array)
 Output : single image (numpy array)
 ''' 
-def getAlignedFace(image, padding=0.4):
+def getAlignedFace(image, padding=0.4, size=140):
 	detector = dlib.get_frontal_face_detector()
 	predictor = dlib.shape_predictor('shape_predictor_5_face_landmarks.dat')
 	rects = detector(image, 1)
@@ -80,8 +80,8 @@ def getAlignedFace(image, padding=0.4):
 	# if detect exactly 1 face, get aligned face
 	if len(rects) == 1:
 		shape = predictor(image, rects[0])
-		result = dlib.get_face_chip(image, shape, padding=padding, size=140)
+		result = dlib.get_face_chip(image, shape, padding=padding, size=size)
 	# use resized full image
 	else :
-		result = resizeImg(image)
+		result = resizeImg(image, size)
 	return result
