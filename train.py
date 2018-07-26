@@ -172,7 +172,7 @@ def main():
 			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mae:.4f}.h5",
                                  verbose=1,
                                  save_best_only=True),
-				'''TYY_callbacks.DecayLearningRate([15]''')
+				# TYY_callbacks.DecayLearningRate([15])
 			]
 		
 		if MODEL == 'ssrnet':
