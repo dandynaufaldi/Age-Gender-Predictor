@@ -251,21 +251,21 @@ def main():
 
     logger.info('Predict with IMDB_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-imdb'] = imdb_model_gender.predict(X).squeeze()
+    pred_gender['ssrnet-imdb'] = imdb_model_gender.predict(X).squeeze().around().astype('int')
     pred_age['ssrnet-imdb'] = imdb_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Wiki_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-wiki'] = wiki_model_gender.predict(X).squeeze()
+    pred_gender['ssrnet-wiki'] = wiki_model_gender.predict(X).squeeze().around().astype('int')
     pred_age['ssrnet-wiki'] = wiki_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Morph_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-morph'] = morph_model_gender.predict(X).squeeze()
+    pred_gender['ssrnet-morph'] = morph_model_gender.predict(X).squeeze().around().astype('int')
     pred_age['ssrnet-morph'] = morph_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
