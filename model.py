@@ -324,8 +324,8 @@ class SSRNet(Model):
 		self.load_weights(path)
 
 	def decodePrediction(self, prediction):
-		gender_predicted = np.around(prediction[0]).astype('int')
-		age_predicted = prediction[1]
+		gender_predicted = np.around(prediction[0]).astype('int').squeeze()
+		age_predicted = prediction[1].squeeze()
 		return gender_predicted, age_predicted
 
 	@staticmethod

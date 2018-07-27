@@ -56,7 +56,7 @@ def get_one_aligned_face(image,
 
     aligned = None
     # position = None
-    if len(rects == 1):     # detect 1 face
+    if len(rects) == 1:     # detect 1 face
         shape = predictor(image, rects[0])
         aligned = dlib.get_face_chip(image, shape, padding=padding, size=size)
         # position = {'left'  : rects[0].left(),
@@ -210,7 +210,7 @@ def main():
     wiki_model_gender = SSR_net_general(64, [3, 3, 3], 1.0, 1.0)()
     wiki_model_gender.load_weights("tes_ssrnet/wiki_gender_ssrnet_3_3_3_64_1.0_1.0.h5")
 
-    logger.info('Load pretrain wiki model')
+    logger.info('Load pretrain morph model')
     morph_model = SSR_net(64, [3, 3, 3], 1.0, 1.0)()
     morph_model.load_weights("tes_ssrnet/morph_age_ssrnet_3_3_3_64_1.0_1.0.h5")
     
@@ -221,11 +221,11 @@ def main():
 
     paths = data['full_path'].values
 
-    logger.info('Read all images')
-    images = [cv2.imread(path) for path in tqdm(paths)]
+    logger.info('Read all aligned images')
+    images = [cv2.imread('UTKface_aligned/'+path) for path in tqdm(paths)]
 
-    logger.info('Align face')
-    images = [get_one_aligned_face(image) for image in tqdm(images)]
+    # logger.info('Align face')
+    # images = [get_one_aligned_face(image) for image in tqdm(images)]
     
     X = np.array(images, dtype='float16')
 
@@ -251,22 +251,22 @@ def main():
 
     logger.info('Predict with IMDB_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-imdb'] = imdb_model_gender.predict(X)
-    pred_age['ssrnet-imdb'] = imdb_model.predict(X)
+    pred_gender['ssrnet-imdb'] = imdb_model_gender.predict(X).squeeze()
+    pred_age['ssrnet-imdb'] = imdb_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Wiki_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-wiki'] = wiki_model_gender.predict(X)
-    pred_age['ssrnet-wiki'] = wiki_model.predict(X)
+    pred_gender['ssrnet-wiki'] = wiki_model_gender.predict(X).squeeze()
+    pred_age['ssrnet-wiki'] = wiki_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Morph_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-morph'] = morph_model_gender.predict(X)
-    pred_age['ssrnet-morph'] = morph_model.predict(X)
+    pred_gender['ssrnet-morph'] = morph_model_gender.predict(X).squeeze()
+    pred_age['ssrnet-morph'] = morph_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
@@ -280,7 +280,7 @@ def main():
     pred_gender.to_csv('result/gender_prediction.csv', index=False)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logger.info)
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
