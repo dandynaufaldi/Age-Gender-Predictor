@@ -18,10 +18,13 @@ import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 from keras import backend as K
-from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception, SSRNet
+from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception, SSRNet, AgenderNetMobileNetV2
 from generator import DataGenerator
 from SSRNET_model import SSR_net, SSR_net_general
 import logging
+import timeit
+from keras.models import Model
+
 def get_one_aligned_face(image,
                     padding=0.4,
                     size=140,
@@ -192,6 +195,10 @@ def main():
     inceptionv3 = AgenderNetInceptionV3()
     inceptionv3.setWeight('trainweight/inceptionv3_2/model.16-3.7887-0.9004-6.6744.h5')
     
+    logger.info('Load MobileNetV2 model')
+    mobilenetv2 = AgenderNetMobileNetV2()
+    mobilenetv2.setWeight('trainweight/mobilenetv2/model.10-3.8290-0.8965-6.9498.h5')
+
     logger.info('Load SSRNet model')
     ssrnet = SSRNet(64, [3, 3, 3], 1.0, 1.0)
     ssrnet.setWeight('trainweight/agender_ssrnet/model.31-7.5452-0.8600-7.4051.h5')
@@ -239,6 +246,17 @@ def main():
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     del X
+    logger.info('Resize image to 96 for MobileNetV2')
+    images = [cv2.resize(image, (96, 96), interpolation = cv2.INTER_CUBIC) for image in tqdm(images)]
+    X = np.array(images, dtype='float16')
+    
+    logger.info('Predict with MobileNetV2')
+    start = time.time()
+    pred_gender['mobilenetv2'], pred_age['mobilenetv2'] = get_result(mobilenetv2, X)
+    elapsed = time.time() - start
+    logger.info('Time elapsed {:.2f} sec'.format(elapsed))
+
+    del X
     logger.info('Resize image to 64 for SSR-Net')
     images = [cv2.resize(image, (64, 64), interpolation = cv2.INTER_CUBIC) for image in tqdm(images)]
     X = np.array(images, dtype='float16')
@@ -251,33 +269,130 @@ def main():
 
     logger.info('Predict with IMDB_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-imdb'] = imdb_model_gender.predict(X).squeeze().around().astype('int')
+    pred_gender['ssrnet-imdb'] = np.around(imdb_model_gender.predict(X).squeeze()).astype('int')
     pred_age['ssrnet-imdb'] = imdb_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Wiki_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-wiki'] = wiki_model_gender.predict(X).squeeze().around().astype('int')
+    pred_gender['ssrnet-wiki'] = np.around(wiki_model_gender.predict(X).squeeze()).astype('int')
     pred_age['ssrnet-wiki'] = wiki_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Morph_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-morph'] = morph_model_gender.predict(X).squeeze().around().astype('int')
+    pred_gender['ssrnet-morph'] = np.around(morph_model_gender.predict(X).squeeze()).astype('int')
     pred_age['ssrnet-morph'] = morph_model.predict(X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
-    pred_age = pd.DataFrame.from_dict(pred_age)
-    pred_gender = pd.DataFrame.from_dict(pred_gender)
+def wrapper(func, *args, **kwargs):
+    def wrapped():
+        return func(*args, **kwargs)
+    return wrapped
 
-    pred_age = pd.concat([data['age'], pred_age], axis=1)
-    pred_gender = pd.concat([data['gender'], pred_gender], axis=1)
+def predictone(model, x):
+    res = model.predict(x)
 
-    pred_age.to_csv('result/age_prediction.csv', index=False)
-    pred_gender.to_csv('result/gender_prediction.csv', index=False)
+def proces_time(wrapped):
+    number = 100
+    elapsed = timeit.repeat(wrapped, repeat=10, number=number)
+    elapsed = np.array(elapsed)
+    per_pass = elapsed / number
+    mean = np.mean(per_pass) * 1000
+    std = np.std(per_pass) * 1000
+    result = '{:6.2f} msec/pass +- {:6.2f} msec'.format(mean, std)
+    return result
+
+def check_inference_time():
+    age_layer = 'age_prediction'
+    gender_layer = 'gender_prediction'
+
+    logger.info('Load InceptionV3 model')
+    inceptionv3 = AgenderNetInceptionV3()
+    inceptionv3.setWeight('trainweight/inceptionv3_2/model.16-3.7887-0.9004-6.6744.h5')
+
+    inceptionv3_age = Model(inputs=inceptionv3.input,
+                                 outputs=inceptionv3.get_layer(age_layer).output)
+    inceptionv3_gender = Model(inputs=inceptionv3.input,
+                                 outputs=inceptionv3.get_layer(gender_layer).output)
+                                 
+    logger.info('Load MobileNetV2 model')
+    mobilenetv2 = AgenderNetMobileNetV2()
+    mobilenetv2.setWeight('trainweight/mobilenetv2/model.10-3.8290-0.8965-6.9498.h5')
+
+    mobilenetv2_age = Model(inputs=mobilenetv2.input,
+                                 outputs=mobilenetv2.get_layer(age_layer).output)
+    mobilenetv2_gender = Model(inputs=mobilenetv2.input,
+                                 outputs=mobilenetv2.get_layer(gender_layer).output)
+
+    logger.info('Load SSRNet model')
+    ssrnet = SSRNet(64, [3, 3, 3], 1.0, 1.0)
+    ssrnet.setWeight('trainweight/agender_ssrnet/model.31-7.5452-0.8600-7.4051.h5')
+
+    ssrnet_age =  Model(inputs=ssrnet.input,
+                                 outputs=ssrnet.get_layer(age_layer).output)
+    ssrnet_gender = Model(inputs=ssrnet.input,
+                                 outputs=ssrnet.get_layer(gender_layer).output)
+
+    logger.info('Load pretrain imdb model')
+    imdb_model = SSR_net(64, [3, 3, 3], 1.0, 1.0)()
+    imdb_model.load_weights("tes_ssrnet/imdb_age_ssrnet_3_3_3_64_1.0_1.0.h5")
+    
+    imdb_model_gender = SSR_net_general(64, [3, 3, 3], 1.0, 1.0)()
+    imdb_model_gender.load_weights("tes_ssrnet/imdb_gender_ssrnet_3_3_3_64_1.0_1.0.h5")
+
+    images = cv2.imread('UTKface_aligned/part1/34_1_0_20170103183147490.jpg')
+    image = cv2.resize(images, (64, 64), interpolation = cv2.INTER_CUBIC)
+    X = image.astype('float16')
+    X = np.expand_dims(X, axis=0)
+
+    logger.info('Predict age and gender with SSR-Net')
+    wrapped = wrapper(predictone, ssrnet, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict age with SSR-Net')
+    wrapped = wrapper(predictone, ssrnet_age, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict gender with SSR-Net')
+    wrapped = wrapper(predictone, ssrnet_gender, X)
+    logger.info(proces_time(wrapped))
+
+    logger.info('Predict age with IMDB_SSR-Net')
+    wrapped = wrapper(predictone, imdb_model, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict gender with IMDB_SSR-Net')
+    wrapped = wrapper(predictone, imdb_model_gender, X)
+    logger.info(proces_time(wrapped))
+
+    del X
+    image = cv2.resize(images, (64, 64), interpolation = cv2.INTER_CUBIC)
+    X = image.astype('float16')
+    X = np.expand_dims(X, axis=0)
+    logger.info('Predict age and gender with MobileNetV2')
+    wrapped = wrapper(predictone, mobilenetv2, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict age with MobileNetV2')
+    wrapped = wrapper(predictone, mobilenetv2_age, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict gender with MobileNetV2')
+    wrapped = wrapper(predictone, mobilenetv2_gender, X)
+    logger.info(proces_time(wrapped))
+    
+    del X
+    X = images.astype('float16')
+    X = np.expand_dims(X, axis=0)
+    logger.info('Predict age and gender with InceptionV3')
+    wrapped = wrapper(predictone, inceptionv3, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict age with InceptionV3')
+    wrapped = wrapper(predictone, inceptionv3_age, X)
+    logger.info(proces_time(wrapped))
+    logger.info('Predict gender with InceptionV3')
+    wrapped = wrapper(predictone, inceptionv3_gender, X)
+    logger.info(proces_time(wrapped))
+    
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
@@ -287,6 +402,7 @@ if __name__ == '__main__':
     sess = tf.Session(config=config)
     K.tensorflow_backend.set_session(sess)
     start = time.time()
-    main()
+    check_inference_time()
+    # main()
     stop = time.time()
     print('Time taken (sec) :', stop-start)
