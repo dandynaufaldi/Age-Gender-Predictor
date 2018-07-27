@@ -367,7 +367,7 @@ def check_inference_time():
     logger.info(proces_time(wrapped))
 
     del X
-    image = cv2.resize(images, (64, 64), interpolation = cv2.INTER_CUBIC)
+    image = cv2.resize(images, (96, 96), interpolation = cv2.INTER_CUBIC)
     X = image.astype('float16')
     X = np.expand_dims(X, axis=0)
     logger.info('Predict age and gender with MobileNetV2')
