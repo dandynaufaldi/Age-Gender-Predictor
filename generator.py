@@ -3,10 +3,8 @@ import numpy as np
 import cv2, os
 import preprocess
 def loadImage(db, paths, size):
-	images = [cv2.imread(os.path.join('{}_crop'.format(db), img_path)) 
+	images = [cv2.resize(cv2.imread(os.path.join('{}_aligned'.format(db), img_path)), (size, size), interpolation = cv2.INTER_CUBIC) 
 				for (db, img_path) in zip(db,paths)]
-	for i in range(len(images)):
-		images[i] = preprocess.getAlignedFace(images[i], size=size)
 	images = np.array(images)
 	return np.array(images, dtype='uint8')
 
