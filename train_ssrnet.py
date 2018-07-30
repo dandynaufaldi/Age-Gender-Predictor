@@ -81,8 +81,8 @@ def fitModel(model, input_size,
 			validation_data=DataGenerator(model, testDb, testPaths, testLabel, batch_size, input_size),
 			epochs=epoch, 
 			verbose=2,
-			steps_per_epoch=np.ceil(len(trainLabel) / batch_size).astype('int'),
-			validation_steps=np.ceil(len(testLabel) / batch_size).astype('int'),
+			#steps_per_epoch=len(trainLabel) // batch_size,
+			#validation_steps=len(testLabel) // batch_size,
 			workers=num_worker,
 			use_multiprocessing=True,
 			max_queue_size=int(batch_size * 1.5),
@@ -127,15 +127,13 @@ def main():
 			testLabel = ageLabel[test_idx]
 		else :
 			testLabel = genderLabel[test_idx]
-
 		losses = "mae"
 		metrics = None
 		if LABEL == 'age':
-			metrics = "mae"
+			metrics = ["mae"]
 		else :
-			metrics = "binary_accuracy"
+			metrics = ["binary_accuracy"]
 		
-		print('[PHASE-2] Fine tuning ...')
 		callbacks = [TYY_callbacks.DecayLearningRate([30, 60])]
 		if LABEL == 'age':
 			callbacks.append(ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
@@ -146,11 +144,10 @@ def main():
 								verbose=1,
 								save_best_only=True))
 
-		model.prepPhase2()
 		model.compile(optimizer='adam', loss=losses, metrics=metrics)
 		hist = fitModel(model, INPUT_SIZE,
 						trainDb, trainPaths, trainLabel, 
-						testDb, testPaths, trainLabel, 
+						testDb, testPaths, testLabel, 
 						EPOCH, BATCH_SIZE, NUM_WORKER, 
 						callbacks)
 		with open(os.path.join('history', 'fold{}_p2.dict'.format(n_fold)), 'wb') as file_hist:
