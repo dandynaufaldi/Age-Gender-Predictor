@@ -64,7 +64,7 @@ def fitModel(model, input_size, categorical,
 			validation_steps=len(testAge) // (batch_size * GPU),
 			workers=num_worker,
 			use_multiprocessing=True,
-			max_queue_size=int(batch_size * 1.5),
+			max_queue_size=int(batch_size * 2),
 			callbacks=callbacks)
 
 def mae(y_true, y_pred):
