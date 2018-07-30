@@ -1,13 +1,14 @@
 from keras.utils import Sequence, np_utils
 import numpy as np 
 import cv2, os
+import preprocess
 def loadImage(db, paths, size):
-    images = [cv2.imread(os.path.join('{}_aligned'.format(db), img_path)) 
-                for (db, img_path) in zip(db,paths)]
-    images = np.array(images)
-    if images.shape[1] != size:
-        images = [cv2.resize(image, (size,size), interpolation = cv2.INTER_CUBIC) for image in images]
-    return np.array(images, dtype='uint8')
+	images = [cv2.imread(os.path.join('{}_crop'.format(db), img_path)) 
+				for (db, img_path) in zip(db,paths)]
+	for i in range(len(images)):
+		images[i] = preprocess.getAlignedFace(images[i], size=size)
+	images = np.array(images)
+	return np.array(images, dtype='uint8')
 
 class DataGenerator(Sequence):
     def __init__(self, model, db, paths, age, gender, batch_size, input_size, categorical):

@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from model import AgenderNetVGG16, AgenderNetInceptionV3, AgenderNetXception, SSRNet, AgenderNetMobileNetV2
-from generator import DataGenerator
 from keras.utils import np_utils
 from sklearn.model_selection import KFold
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -12,7 +11,7 @@ from keras import backend as K
 from keras import metrics
 import TYY_callbacks
 import argparse
-
+from generator import DataGenerator
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--gpu',
@@ -42,7 +41,7 @@ parser.add_argument('--num_worker',
 def prepData(trial):
 	wiki = pd.read_csv('dataset/wiki_cleaned.csv')
 	imdb = pd.read_csv('dataset/imdb_cleaned.csv')
-	adience = pd.read_csv('dataset/adience_u20.csv')
+	adience = pd.read_csv('dataset/adience_cleaned.csv')
 	data = pd.concat([wiki, imdb, adience], axis=0)
 	del wiki, imdb, adience
 	db = data['db_name'].values
@@ -142,7 +141,7 @@ def main():
 			"gender_prediction": "acc",
 		}
 		
-		if MODEL == 'ssrnet' :
+		if MODEL ==  'ssrnet' :
 			del losses, metrics
 			losses = {
 				"age_prediction": "mae",
@@ -170,8 +169,8 @@ def main():
 		print('[PHASE-2] Fine tuning ...')
 		callbacks = [
 			ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_acc:.4f}-{val_age_prediction_mae:.4f}.h5",
-                                 verbose=1,
-                                 save_best_only=True),
+								 verbose=1,
+								 save_best_only=True),
 				# TYY_callbacks.DecayLearningRate([15])
 			]
 		

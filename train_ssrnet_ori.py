@@ -136,11 +136,11 @@ def main():
 		
 		callbacks = [TYY_callbacks.DecayLearningRate([30, 60])]
 		if LABEL == 'age':
-			callbacks.append(ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_age_prediction_mean_absolute_error:.4f}.h5",
+			callbacks.append(ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_mean_absolute_error:.4f}.h5",
 								verbose=1,
 								save_best_only=True))
 		else :
-			callbacks.append(ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_gender_prediction_binary_accuracy:.4f}.h5",
+			callbacks.append(ModelCheckpoint("trainweight/model.{epoch:02d}-{val_loss:.4f}-{val_binary_accuracy:.4f}.h5",
 								verbose=1,
 								save_best_only=True))
 

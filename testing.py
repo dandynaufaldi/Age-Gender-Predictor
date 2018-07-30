@@ -288,6 +288,15 @@ def main():
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
+    pred_age = pd.DataFrame.from_dict(pred_age)
+    pred_gender = pd.DataFrame.from_dict(pred_gender)
+
+    pred_age = pd.concat([data['age'], pred_age], axis=1)
+    pred_gender = pd.concat([data['gender'], pred_gender], axis=1)
+
+    pred_age.to_csv('result/age_prediction.csv', index=False)
+    pred_gender.to_csv('result/gender_prediction.csv', index=False)
+
 def wrapper(func, *args, **kwargs):
     def wrapped():
         return func(*args, **kwargs)
