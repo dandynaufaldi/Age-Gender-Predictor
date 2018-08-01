@@ -7,6 +7,11 @@ adience_aligned/
 adience/
 UTKface/
 UTKface_aligned/
+test_insightface/models/*
+test_insightface/mtcnn-model/*
+test_insightface/*.csv
+result/*.csv
+result/*.jpg
 #weight
 history/
 # Byte-compiled / optimized / DLL files

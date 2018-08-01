@@ -9,6 +9,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.utils.training_utils import multi_gpu_model
 from keras import backend as K
 from keras import metrics
+from keras.optimizers import Adam
 import TYY_callbacks
 import argparse
 from generator import DataGenerator
