@@ -151,7 +151,7 @@ def get_metrics(age_predicted, gender_predicted, age_true, gender_true):
 def visualize(fullimage, result):
     pass
 def getPosFromRect(rect):
-	return (rect.left(), rect.top(), rect.right(), rect.bottom())
+    return (rect.left(), rect.top(), rect.right(), rect.bottom())
 def temp():
     print('[LOAD MODEL]')
     model = SSRNet(64, [3, 3, 3], 1.0, 1.0)
@@ -201,7 +201,7 @@ def main():
 
     logger.info('Load SSRNet model')
     ssrnet = SSRNet(64, [3, 3, 3], 1.0, 1.0)
-    ssrnet.setWeight('trainweight/agender_ssrnet/model.31-7.5452-0.8600-7.4051.h5')
+    ssrnet.setWeight('trainweight/ssrnet/model.37-7.3318-0.8643-7.1952.h5')
 
     logger.info('Load pretrain imdb model')
     imdb_model = SSR_net(64, [3, 3, 3], 1.0, 1.0)()
@@ -224,78 +224,95 @@ def main():
     morph_model_gender = SSR_net_general(64, [3, 3, 3], 1.0, 1.0)()
     morph_model_gender.load_weights("tes_ssrnet/morph_gender_ssrnet_3_3_3_64_1.0_1.0.h5")
 
-    data = pd.read_csv('dataset/UTKface.csv')
+    utk = pd.read_csv('dataset/UTKface.csv')
+    fgnet = pd.read_csv('dataset/FGNET.csv')
 
-    paths = data['full_path'].values
+    utk_paths = utk['full_path'].values
+    fgnet_paths = fgnet['full_path'].values
 
-    logger.info('Read all aligned images')
-    images = [cv2.imread('UTKface_aligned/'+path) for path in tqdm(paths)]
+    logger.info('Read UTKface aligned images')
+    utk_images = [cv2.imread('UTKface_aligned/'+path) for path in tqdm(utk_paths)]
 
-    # logger.info('Align face')
-    # images = [get_one_aligned_face(image) for image in tqdm(images)]
+    logger.info('Read FGNET aligned images')
+    fgnet_images = [cv2.imread('FGNET_aligned/'+path) for path in tqdm(fgnet_paths)]
     
-    X = np.array(images, dtype='float16')
+    utk_X = np.array(utk_images)
+    fgnet_X = np.array(fgnet_images)
 
-    pred_age = dict()
-    pred_gender = dict()
+    utk_pred_age = dict()
+    utk_pred_gender = dict()
+    fgnet_pred_age = dict()
 
     logger.info('Predict with InceptionV3')
     start = time.time()
-    pred_gender['inceptionv3'], pred_age['inceptionv3'] = get_result(inceptionv3, X)
+    utk_pred_gender['inceptionv3'], utk_pred_age['inceptionv3'] = get_result(inceptionv3, utk_X)
+    _, fgnet_pred_age['inceptionv3'] = get_result(inceptionv3, fgnet_X)
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
-    del X
+    del utk_X, fgnet_X
     logger.info('Resize image to 96 for MobileNetV2')
-    images = [cv2.resize(image, (96, 96), interpolation = cv2.INTER_CUBIC) for image in tqdm(images)]
-    X = np.array(images, dtype='float16')
+    utk_images = [cv2.resize(image, (96, 96), interpolation = cv2.INTER_CUBIC) for image in tqdm(utk_images)]
+    fgnet_images = [cv2.resize(image, (96, 96), interpolation = cv2.INTER_CUBIC) for image in tqdm(fgnet_images)]
+    utk_X = np.array(utk_images)
+    fgnet_X = np.array(fgnet_images)
     
     logger.info('Predict with MobileNetV2')
     start = time.time()
-    pred_gender['mobilenetv2'], pred_age['mobilenetv2'] = get_result(mobilenetv2, X)
+    utk_pred_gender['mobilenetv2'], utk_pred_age['mobilenetv2'] = get_result(mobilenetv2, utk_X)
+    _, fgnet_pred_age['mobilenetv2'] = get_result(mobilenetv2, fgnet_X)
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
-    del X
+    del utk_X, fgnet_X
     logger.info('Resize image to 64 for SSR-Net')
-    images = [cv2.resize(image, (64, 64), interpolation = cv2.INTER_CUBIC) for image in tqdm(images)]
-    X = np.array(images, dtype='float16')
+    utk_images = [cv2.resize(image, (64, 64), interpolation = cv2.INTER_CUBIC) for image in tqdm(utk_images)]
+    fgnet_images = [cv2.resize(image, (64, 64), interpolation = cv2.INTER_CUBIC) for image in tqdm(fgnet_images)]
+    utk_X = np.array(utk_images)
+    fgnet_X = np.array(fgnet_images)
 
     logger.info('Predict with SSR-Net')
     start = time.time()
-    pred_gender['ssrnet'], pred_age['ssrnet'] = get_result(ssrnet, X)
+    utk_pred_gender['ssrnet'], utk_pred_age['ssrnet'] = get_result(ssrnet, utk_X)
+    _, fgnet_pred_age['ssrnet'] = get_result(ssrnet, fgnet_X)
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with IMDB_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-imdb'] = np.around(imdb_model_gender.predict(X).squeeze()).astype('int')
-    pred_age['ssrnet-imdb'] = imdb_model.predict(X).squeeze()
+    utk_pred_gender['ssrnet-imdb'] = np.around(imdb_model_gender.predict(utk_X).squeeze()).astype('int')
+    utk_pred_age['ssrnet-imdb'] = imdb_model.predict(utk_X).squeeze()
+    fgnet_pred_age['ssrnet-imdb'] = imdb_model.predict(fgnet_X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Wiki_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-wiki'] = np.around(wiki_model_gender.predict(X).squeeze()).astype('int')
-    pred_age['ssrnet-wiki'] = wiki_model.predict(X).squeeze()
+    utk_pred_gender['ssrnet-wiki'] = np.around(wiki_model_gender.predict(utk_X).squeeze()).astype('int')
+    utk_pred_age['ssrnet-wiki'] = wiki_model.predict(utk_X).squeeze()
+    fgnet_pred_age['ssrnet-wiki'] = wiki_model.predict(fgnet_X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
     logger.info('Predict with Morph_SSR-Net')
     start = time.time()
-    pred_gender['ssrnet-morph'] = np.around(morph_model_gender.predict(X).squeeze()).astype('int')
-    pred_age['ssrnet-morph'] = morph_model.predict(X).squeeze()
+    utk_pred_gender['ssrnet-morph'] = np.around(morph_model_gender.predict(utk_X).squeeze()).astype('int')
+    utk_pred_age['ssrnet-morph'] = morph_model.predict(utk_X).squeeze()
+    fgnet_pred_age['ssrnet-morph'] = morph_model.predict(fgnet_X).squeeze()
     elapsed = time.time() - start
     logger.info('Time elapsed {:.2f} sec'.format(elapsed))
 
-    pred_age = pd.DataFrame.from_dict(pred_age)
-    pred_gender = pd.DataFrame.from_dict(pred_gender)
+    utk_pred_age = pd.DataFrame.from_dict(utk_pred_age)
+    utk_pred_gender = pd.DataFrame.from_dict(utk_pred_gender)
+    fgnet_pred_age = pd.DataFrame.from_dict(fgnet_pred_age)
 
-    pred_age = pd.concat([data['age'], pred_age], axis=1)
-    pred_gender = pd.concat([data['gender'], pred_gender], axis=1)
+    utk_pred_age = pd.concat([utk['age'], utk_pred_age], axis=1)
+    utk_pred_gender = pd.concat([utk['gender'], utk_pred_gender], axis=1)
+    fgnet_pred_age = pd.concat([fgnet['age'], fgnet_pred_age], axis=1)
 
-    pred_age.to_csv('result/age_prediction.csv', index=False)
-    pred_gender.to_csv('result/gender_prediction.csv', index=False)
+    utk_pred_age.to_csv('result/utk_age_prediction.csv', index=False)
+    utk_pred_age.to_csv('result/utk_gender_prediction.csv', index=False)
+    fgnet_pred_age.to_csv('result/fgnet_age_prediction.csv', index=False)
 
 def wrapper(func, *args, **kwargs):
     def wrapped():
@@ -411,7 +428,7 @@ if __name__ == '__main__':
     sess = tf.Session(config=config)
     K.tensorflow_backend.set_session(sess)
     start = time.time()
-    check_inference_time()
-    # main()
+    # check_inference_time()
+    main()
     stop = time.time()
     print('Time taken (sec) :', stop-start)
