@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        table, th, td{
+            border: 1px solid black;
+        }
+        img{
+            max-width: 25vw;
+        }
+    </style>
+</head>
+<body>
+    <button id="next-but" onclick="saveCurrent(showNext, lastIdx)">Save & Next</button>
+    <button id="down-but" onclick="downloadCur()">Save & Download</button>
+    <table id="tabel">
+        <thead>
+            <tr>
+                <th>Num</th>
+                <th>Photo</th>
+                <th>Age</th>
+                <th>Gender</th>
+            </tr>
+        </thead>
+        <tbody id = "tabel-body">
+        </tbody>
+        <tfoot>
+                <tr>
+                    <th>Num</th>
+                    <th>Photo</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                </tr>
+        </tfoot>
+    </table>
+    <button id="next-but" onclick="saveCurrent(showNext, lastIdx)">Save & Next</button>
+    <button id="down-but" onclick="downloadCur()">Save & Download</button>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
